@@ -28,7 +28,7 @@
 #define _REENTRANT
 #endif
 
-#define N 3
+#define N 2
 
 //matrices
 int A[N][N];
@@ -41,6 +41,7 @@ int MAX_ROW_SUM = 0;
 //methods
 void* put_value(void * parameters);
 void* matrix_multiplication(void* parameters);
+void* row_computation(void* row);
 void print_array(int array[N][N]);
 
 //structs (to pass more than one parameter into thread method)
@@ -84,7 +85,7 @@ int main() {
 
     //threads for getting the max sum of the rows in C
     for (int i = 0; i < N; i++) {
-        pthread_create(&row_threads[i], NULL, row_computation, i);
+        pthread_create(&row_threads[i], NULL, row_computation, (void *) i);
         pthread_join(row_threads[i], NULL);
     }
 
@@ -94,7 +95,7 @@ int main() {
     print_array(B);
     printf("Matrix C:\n");
     print_array(C);
-    printf("Max row sum %d", MAX_ROW_SUM);
+    printf("Max row sum: %d.\n", MAX_ROW_SUM);
 
     return 0;
 }
@@ -114,13 +115,13 @@ void* put_value(void* parameters) {
     gettimeofday(&now, NULL);
     secs = now.tv_usec;
 
-    int random_value_A = rand_r(&(secs))%100; //TODO: remove the mod
+    int random_value_A = rand_r(&(secs))%10; //TODO: remove the mod
     A[row][column] = random_value_A;
 
     gettimeofday(&now, NULL);
     secs = now.tv_usec;
 
-    int random_value_B = rand_r(&(secs))%100;
+    int random_value_B = rand_r(&(secs))%10;
     B[row][column] = random_value_B;
 
     //(void * return); //what do I do with this? //TODO: what/how do you return from a thread method?
@@ -148,37 +149,16 @@ void* matrix_multiplication(void* parameters) {
 */
  void* row_computation(void* row) {
     int sum = 0; //single row value/variable
-    int row_to_add = row; //cast the passed in void parameter
+    int row_to_add = (int) row; //cast the passed in void parameter
     for(int i=0; i<N; i++) {
         sum += C[row_to_add][i];
     }
-}
 
-
-/*
-// multiplies an N1xM1 matrix by a M1xM2 matrix, storing the result in `result`
-void matrix_mult(int n1, int m1, int mat1[n1][m1], int m2, int mat2[m1][m2], int result[n1][m2]) {
-
-    //value to hold the result of the matrix multiplication and the value that is inserted into the result matrix
-    int result_multi = 0;
-
-    //triple nested for loop that does the multiplication
-    for (int i = 0; i < m2; i++) {
-        for (int j = 0; j < n1; j++) {
-            for (int k = 0; k < m1; k++) {
-                //result accumulates in result
-                result_multi += (mat1[j][k] * mat2[k][i]);
-            }
-
-            //assigns the result to the proper location in the result matrix
-            result[j][i] = result_multi;
-
-            //resets the result value each time
-            result_multi = 0;
-        }
+    //replace max row sum's value if needed...
+    if(MAX_ROW_SUM < sum) {
+        MAX_ROW_SUM = sum;
     }
 }
- */
 
 /*
  * Method to print out values in an array
