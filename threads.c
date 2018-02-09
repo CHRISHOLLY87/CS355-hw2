@@ -28,7 +28,7 @@
 #define _REENTRANT
 #endif
 
-#define N 5
+#define N 2
 
 //matrices
 int A[N][N];
@@ -37,7 +37,7 @@ int C[N][N];
 
 //methods
 void* put_value(void * parameters);
-void print_array(int **array);
+void print_array(int array[N][N]);
 
 //structs (to pass more than one parameter into thread method)
 typedef struct put_parameters
@@ -70,10 +70,11 @@ int main() {
         }
     }
 
+    printf("Matrix A:\n");
     print_array(A);
-    printf("\n");
+    printf("Matrix B:\n");
     print_array(B);
-    printf("\n");
+    printf("Matrix C:\n");
     print_array(C);
 
     return 0;
@@ -95,7 +96,6 @@ void* put_value(void* parameters) {
     secs = now.tv_usec;
 
     int random_value_A = rand_r(&(secs))%100; //TODO: remove the mod
-    printf("random value %d\n", random_value_A);
     A[row][column] = random_value_A;
 
     gettimeofday(&now, NULL);
@@ -142,7 +142,7 @@ void matrix_mult(int n1, int m1, int mat1[n1][m1], int m2, int mat2[m1][m2], int
 /*
  * Method to print out values in an array
  */
-void print_array(int **array) {
+void print_array(int array[N][N]) {
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
             printf("%d\t", array[i][j]);
