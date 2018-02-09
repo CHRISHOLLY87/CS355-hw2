@@ -7,4 +7,4 @@ threads.o: threads.c
 	gcc -c threads.c
 
 clean:
-	rm -rf *.o *.gch *.dSYM
+	rm -rf *.o *.gch *.dSYM threads\ *
