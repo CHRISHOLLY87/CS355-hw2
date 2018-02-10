@@ -28,7 +28,7 @@
 #define _REENTRANT
 #endif
 
-#define N 2
+#define N 3
 
 //matrices
 int A[N][N];
@@ -44,6 +44,7 @@ void* put_value(void * parameters);
 void* matrix_multiplication(void* parameters);
 void* row_computation(void* row);
 void print_array(int array[N][N]);
+void error_message();
 
 //structs (to pass more than one parameter into thread method)
 typedef struct put_parameters
@@ -60,20 +61,28 @@ int main() {
     pthread_t threads[N][N];
     pthread_t multiplication_threads[N][N];
     pthread_t row_threads[N];
-
     put_parameters parameters[N][N];
     put_parameters multiplication_parameters[N][N];
 
+    //TODO: add error checking
     //mutex
-    pthread_mutex_init(&lock, NULL); //TODO: add error checking
+    if(pthread_mutex_init(&lock, NULL) != 0) {
+        error_message();
+    }
 
-    //create threads for matrix value generation //TODO: add error handling! //TODO: Ask about joining and creating at one? or not at all? (doesn't matter)
+    //create threads for matrix value generation
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
             parameters[i][j].row = i;
             parameters[i][j].column = j;
-            pthread_create(&threads[i][j], NULL, put_value, &parameters[i][j]);
-            pthread_join(threads[i][j], NULL);
+
+            //error handling
+            if (pthread_create(&threads[i][j], NULL, put_value, &parameters[i][j]) != 0) {
+                error_message();
+            }
+            if (pthread_join(threads[i][j], NULL) != 0) {
+                error_message();
+            }
         }
     }
 
@@ -82,17 +91,32 @@ int main() {
         for (int j = 0; j < N; j++) {
             multiplication_parameters[i][j].row = i;
             multiplication_parameters[i][j].column = j;
-            pthread_create(&multiplication_threads[i][j], NULL, matrix_multiplication, &multiplication_parameters[i][j]);
-            pthread_join(threads[i][j], NULL);
+
+            //error handling
+            if (pthread_create(&multiplication_threads[i][j], NULL, matrix_multiplication,
+                               &multiplication_parameters[i][j]) != 0) {
+                error_message();
+            }
+            if (pthread_join(threads[i][j], NULL) != 0) {
+                error_message();
+            }
         }
     }
 
     //threads for getting the max sum of the rows in C
     for (int i = 0; i < N; i++) {
-        pthread_create(&row_threads[i], NULL, row_computation, (void *) i);
-        pthread_join(row_threads[i], NULL);
+        void* row = (void*) (size_t) i;
+
+        //error handling
+        if(pthread_create(&row_threads[i], NULL, row_computation, row) !=0) {
+            error_message();
+        }
+        if(pthread_join(row_threads[i], NULL)!=0){
+            error_message();
+        }
     }
 
+    //Print messages
     printf("Matrix A:\n");
     print_array(A);
     printf("Matrix B:\n");
@@ -101,10 +125,13 @@ int main() {
     print_array(C);
     printf("Max row sum: %d.\n", MAX_ROW_SUM);
 
-    //done with mutex now, so destroy it
-    pthread_mutex_destroy(&lock);
+    //Done with mutex now, so destroy it
+    if(pthread_mutex_destroy(&lock)!=0) {
+        error_message();
+    }
 
-    return 0;
+    //Everything turned out well
+    return EXIT_SUCCESS;
 }
 
 /*
@@ -122,13 +149,13 @@ void* put_value(void* parameters) {
     gettimeofday(&now, NULL);
     secs = now.tv_usec;
 
-    int random_value_A = rand_r(&(secs)) % 10; //TODO: remove the mod
+    int random_value_A = rand_r(&(secs)) % 5; //TODO: remove the mod
     A[row][column] = random_value_A;
 
     gettimeofday(&now, NULL);
     secs = now.tv_usec;
 
-    int random_value_B = rand_r(&(secs)) % 10;
+    int random_value_B = rand_r(&(secs)) % 5;
     B[row][column] = random_value_B;
 
     return NULL;
@@ -150,14 +177,10 @@ void* matrix_multiplication(void* parameters) {
     return NULL;
 }
 
-//TODO: resolve race condition (goal was to generate race condition)
+//TODO: resolve race condition (goal was to generate race condition) (check with TA's that I have resolved the race condition)
 /*
-* (e) Now compute the sum of elements in each row of C, and find the maximum of all row- sums. First initialize a
-* single variable MAX ROW SUM = 0, this is the variable that should hold the maximum of the row-sums at the end of
-* this step. Create N threads each of which computes the sum of a distinct row in C, and update MAX ROW SUM if necessary.
-* To make things a bit more interesting, after reading but before updating MAX ROW SUM, let each thread sleep some
-* random amount of time (few seconds).
-*/
+ * Method to figure out what the maximum row sum is for the matrix in question
+ */
  void* row_computation(void* row) {
     int sum = 0; //single row value/variable
     int row_to_add = (int) row; //cast the passed in void parameter
@@ -167,11 +190,19 @@ void* matrix_multiplication(void* parameters) {
 
     //replace max row sum's value if needed...
     //critical region, since MAX_ROW_SUM is on the heap and is global to the function as a whole
-    pthread_mutex_lock(&lock);
+    if(pthread_mutex_lock(&lock)!=0) {
+        error_message();
+    }
+
     if(MAX_ROW_SUM < sum) {
         MAX_ROW_SUM = sum;
     }
-    pthread_mutex_unlock(&lock);
+
+    if(pthread_mutex_unlock(&lock)!=0) {
+        error_message();
+    }
+
+    return NULL;
 }
 
 /*
@@ -184,5 +215,13 @@ void print_array(int array[N][N]) {
         }
         printf("\n");
     }
+}
+
+/*
+ * Error method
+ */
+void error_message() {
+    printf("I am sorry, but there has been an error. Exiting now.");
+    exit(EXIT_FAILURE);
 }
 

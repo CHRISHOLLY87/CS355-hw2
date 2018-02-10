@@ -57,38 +57,38 @@ include CMakeFiles/hw2.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/hw2.dir/flags.make
 
-CMakeFiles/hw2.dir/main.c.o: CMakeFiles/hw2.dir/flags.make
-CMakeFiles/hw2.dir/main.c.o: ../main.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Users/Sarah/Library/Mobile Documents/com~apple~CloudDocs/Spring 2018/Operating Systems/hw2/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/hw2.dir/main.c.o"
-	/Library/Developer/CommandLineTools/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/hw2.dir/main.c.o   -c "/Users/Sarah/Library/Mobile Documents/com~apple~CloudDocs/Spring 2018/Operating Systems/hw2/main.c"
+CMakeFiles/hw2.dir/threads.c.o: CMakeFiles/hw2.dir/flags.make
+CMakeFiles/hw2.dir/threads.c.o: ../threads.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Users/Sarah/Library/Mobile Documents/com~apple~CloudDocs/Spring 2018/Operating Systems/hw2/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/hw2.dir/threads.c.o"
+	/Library/Developer/CommandLineTools/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/hw2.dir/threads.c.o   -c "/Users/Sarah/Library/Mobile Documents/com~apple~CloudDocs/Spring 2018/Operating Systems/hw2/threads.c"
 
-CMakeFiles/hw2.dir/main.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/hw2.dir/main.c.i"
-	/Library/Developer/CommandLineTools/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E "/Users/Sarah/Library/Mobile Documents/com~apple~CloudDocs/Spring 2018/Operating Systems/hw2/main.c" > CMakeFiles/hw2.dir/main.c.i
+CMakeFiles/hw2.dir/threads.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/hw2.dir/threads.c.i"
+	/Library/Developer/CommandLineTools/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E "/Users/Sarah/Library/Mobile Documents/com~apple~CloudDocs/Spring 2018/Operating Systems/hw2/threads.c" > CMakeFiles/hw2.dir/threads.c.i
 
-CMakeFiles/hw2.dir/main.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/hw2.dir/main.c.s"
-	/Library/Developer/CommandLineTools/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S "/Users/Sarah/Library/Mobile Documents/com~apple~CloudDocs/Spring 2018/Operating Systems/hw2/main.c" -o CMakeFiles/hw2.dir/main.c.s
+CMakeFiles/hw2.dir/threads.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/hw2.dir/threads.c.s"
+	/Library/Developer/CommandLineTools/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S "/Users/Sarah/Library/Mobile Documents/com~apple~CloudDocs/Spring 2018/Operating Systems/hw2/threads.c" -o CMakeFiles/hw2.dir/threads.c.s
 
-CMakeFiles/hw2.dir/main.c.o.requires:
+CMakeFiles/hw2.dir/threads.c.o.requires:
 
-.PHONY : CMakeFiles/hw2.dir/main.c.o.requires
+.PHONY : CMakeFiles/hw2.dir/threads.c.o.requires
 
-CMakeFiles/hw2.dir/main.c.o.provides: CMakeFiles/hw2.dir/main.c.o.requires
-	$(MAKE) -f CMakeFiles/hw2.dir/build.make CMakeFiles/hw2.dir/main.c.o.provides.build
-.PHONY : CMakeFiles/hw2.dir/main.c.o.provides
+CMakeFiles/hw2.dir/threads.c.o.provides: CMakeFiles/hw2.dir/threads.c.o.requires
+	$(MAKE) -f CMakeFiles/hw2.dir/build.make CMakeFiles/hw2.dir/threads.c.o.provides.build
+.PHONY : CMakeFiles/hw2.dir/threads.c.o.provides
 
-CMakeFiles/hw2.dir/main.c.o.provides.build: CMakeFiles/hw2.dir/main.c.o
+CMakeFiles/hw2.dir/threads.c.o.provides.build: CMakeFiles/hw2.dir/threads.c.o
 
 
 # Object files for target hw2
 hw2_OBJECTS = \
-"CMakeFiles/hw2.dir/main.c.o"
+"CMakeFiles/hw2.dir/threads.c.o"
 
 # External object files for target hw2
 hw2_EXTERNAL_OBJECTS =
 
-hw2: CMakeFiles/hw2.dir/main.c.o
+hw2: CMakeFiles/hw2.dir/threads.c.o
 hw2: CMakeFiles/hw2.dir/build.make
 hw2: CMakeFiles/hw2.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/Users/Sarah/Library/Mobile Documents/com~apple~CloudDocs/Spring 2018/Operating Systems/hw2/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Linking C executable hw2"
@@ -99,7 +99,7 @@ CMakeFiles/hw2.dir/build: hw2
 
 .PHONY : CMakeFiles/hw2.dir/build
 
-CMakeFiles/hw2.dir/requires: CMakeFiles/hw2.dir/main.c.o.requires
+CMakeFiles/hw2.dir/requires: CMakeFiles/hw2.dir/threads.c.o.requires
 
 .PHONY : CMakeFiles/hw2.dir/requires
 

@@ -1,5 +1,5 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/hw2.dir/main.c.o"
+  "CMakeFiles/hw2.dir/threads.c.o"
   "hw2.pdb"
   "hw2"
 )
