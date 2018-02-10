@@ -80,6 +80,12 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/Users/Sarah/Library/Mobile Documents/com~apple~CloudDocs/Spring 2018/Operating Systems/hw2/Lab01Part1.c">
+			<Option target="hw2"/>
+		</Unit>
+		<Unit filename="/Users/Sarah/Library/Mobile Documents/com~apple~CloudDocs/Spring 2018/Operating Systems/hw2/mysh.c">
+			<Option target="hw2"/>
+		</Unit>
 		<Unit filename="/Users/Sarah/Library/Mobile Documents/com~apple~CloudDocs/Spring 2018/Operating Systems/hw2/threads.c">
 			<Option target="hw2"/>
 		</Unit>

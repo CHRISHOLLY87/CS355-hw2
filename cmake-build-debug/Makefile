@@ -123,6 +123,60 @@ hw2/fast:
 	$(MAKE) -f CMakeFiles/hw2.dir/build.make CMakeFiles/hw2.dir/build
 .PHONY : hw2/fast
 
+Lab01Part1.o: Lab01Part1.c.o
+
+.PHONY : Lab01Part1.o
+
+# target to build an object file
+Lab01Part1.c.o:
+	$(MAKE) -f CMakeFiles/hw2.dir/build.make CMakeFiles/hw2.dir/Lab01Part1.c.o
+.PHONY : Lab01Part1.c.o
+
+Lab01Part1.i: Lab01Part1.c.i
+
+.PHONY : Lab01Part1.i
+
+# target to preprocess a source file
+Lab01Part1.c.i:
+	$(MAKE) -f CMakeFiles/hw2.dir/build.make CMakeFiles/hw2.dir/Lab01Part1.c.i
+.PHONY : Lab01Part1.c.i
+
+Lab01Part1.s: Lab01Part1.c.s
+
+.PHONY : Lab01Part1.s
+
+# target to generate assembly for a file
+Lab01Part1.c.s:
+	$(MAKE) -f CMakeFiles/hw2.dir/build.make CMakeFiles/hw2.dir/Lab01Part1.c.s
+.PHONY : Lab01Part1.c.s
+
+mysh.o: mysh.c.o
+
+.PHONY : mysh.o
+
+# target to build an object file
+mysh.c.o:
+	$(MAKE) -f CMakeFiles/hw2.dir/build.make CMakeFiles/hw2.dir/mysh.c.o
+.PHONY : mysh.c.o
+
+mysh.i: mysh.c.i
+
+.PHONY : mysh.i
+
+# target to preprocess a source file
+mysh.c.i:
+	$(MAKE) -f CMakeFiles/hw2.dir/build.make CMakeFiles/hw2.dir/mysh.c.i
+.PHONY : mysh.c.i
+
+mysh.s: mysh.c.s
+
+.PHONY : mysh.s
+
+# target to generate assembly for a file
+mysh.c.s:
+	$(MAKE) -f CMakeFiles/hw2.dir/build.make CMakeFiles/hw2.dir/mysh.c.s
+.PHONY : mysh.c.s
+
 threads.o: threads.c.o
 
 .PHONY : threads.o
@@ -159,6 +213,12 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... hw2"
+	@echo "... Lab01Part1.o"
+	@echo "... Lab01Part1.i"
+	@echo "... Lab01Part1.s"
+	@echo "... mysh.o"
+	@echo "... mysh.i"
+	@echo "... mysh.s"
 	@echo "... threads.o"
 	@echo "... threads.i"
 	@echo "... threads.s"
