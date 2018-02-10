@@ -13,7 +13,7 @@
 * random amount of time (few seconds).
 * (f) Print the maximum row-sum.
 * Note: Do NOT use any intermediate variables to store individual row-sums.
-* (g) I hope that by now you clearly see that we were intentionally generating a race condi- tion in (e). Using POSIX
+* (g) I hope that by now you clearly see that we were intentionally generating a race condition in (e). Using POSIX
 * thread mutexes, add code to resolve the race condition (consult manual pages on pthread mutex *, i.e. pthread mutex
 * init(), pthread mutex lock(), etc.
 */
@@ -37,6 +37,7 @@ int C[N][N];
 
 //variables
 int MAX_ROW_SUM = 0;
+pthread_mutex_t lock;
 
 //methods
 void* put_value(void * parameters);
@@ -63,7 +64,10 @@ int main() {
     put_parameters parameters[N][N];
     put_parameters multiplication_parameters[N][N];
 
-    //create threads for matrix value generation //TODO: add error handling! //TODO: Ask about joining and creating at one? or not at all?
+    //mutex
+    pthread_mutex_init(&lock, NULL); //TODO: add error checking
+
+    //create threads for matrix value generation //TODO: add error handling! //TODO: Ask about joining and creating at one? or not at all? (doesn't matter)
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
             parameters[i][j].row = i;
@@ -97,6 +101,9 @@ int main() {
     print_array(C);
     printf("Max row sum: %d.\n", MAX_ROW_SUM);
 
+    //done with mutex now, so destroy it
+    pthread_mutex_destroy(&lock);
+
     return 0;
 }
 
@@ -115,33 +122,37 @@ void* put_value(void* parameters) {
     gettimeofday(&now, NULL);
     secs = now.tv_usec;
 
-    int random_value_A = rand_r(&(secs))%10; //TODO: remove the mod
+    int random_value_A = rand_r(&(secs)) % 10; //TODO: remove the mod
     A[row][column] = random_value_A;
 
     gettimeofday(&now, NULL);
     secs = now.tv_usec;
 
-    int random_value_B = rand_r(&(secs))%10;
+    int random_value_B = rand_r(&(secs)) % 10;
     B[row][column] = random_value_B;
 
-    //(void * return); //what do I do with this? //TODO: what/how do you return from a thread method?
+    return NULL;
 }
 
 /*
  * Method to multiply AxB and put the entries into C
  */
+//TODO: make sure method is acceptable (race conditions could occur?)
 void* matrix_multiplication(void* parameters) {
     put_parameters *row_and_column = parameters;
     int row = row_and_column->row;
     int column = row_and_column->column;
-    //TODO: If I were to use a "sum" variable here, could I generate a race condition?
+
     for (int i = 0; i < N; i++) {
         C[row][column] += (A[row][i] * B[i][column]);
     }
+
+    return NULL;
 }
 
+//TODO: resolve race condition (goal was to generate race condition)
 /*
- * * (e) Now compute the sum of elements in each row of C, and find the maximum of all row- sums. First initialize a
+* (e) Now compute the sum of elements in each row of C, and find the maximum of all row- sums. First initialize a
 * single variable MAX ROW SUM = 0, this is the variable that should hold the maximum of the row-sums at the end of
 * this step. Create N threads each of which computes the sum of a distinct row in C, and update MAX ROW SUM if necessary.
 * To make things a bit more interesting, after reading but before updating MAX ROW SUM, let each thread sleep some
@@ -155,9 +166,12 @@ void* matrix_multiplication(void* parameters) {
     }
 
     //replace max row sum's value if needed...
+    //critical region, since MAX_ROW_SUM is on the heap and is global to the function as a whole
+    pthread_mutex_lock(&lock);
     if(MAX_ROW_SUM < sum) {
         MAX_ROW_SUM = sum;
     }
+    pthread_mutex_unlock(&lock);
 }
 
 /*
