@@ -10,7 +10,7 @@
 * Relevant system calls are fork(), wait(), exec() families and exit().
 * //TODO: figure out how to do this... Note that your shell should be able to perform standard path search according to the search path defined by the PATH environment variable. Hint: remember execvp. //TODO: figure out how to path searching in shell..
 * (b) Built-in commands
-* • exit: Exits mysh and returns to whatever shell you started mysh from.
+* • exit: Exits mysh and returns to whatever shell you started mysh from. //TODO: clarify what this means?
 * (c) When parsing the command line, mysh should ignore all white spaces. You should find the Clib functions isspace() and strtok() useful.
 * We are going to build on this shell, so please have future expansions in mind when you write your parser.
 * (d) Thou shall not crash. Since the shell is at the front line of user interaction, and its quality reflects heavily on the usability
@@ -53,13 +53,11 @@ typedef struct command
 //Method declarations
 void print_prompt();
 char *read_command_line(char *prompt);
-command parse_command(char *line);
-void execute_command(command cmd);
+command parse_command(char* line);
+int execute_command(command cmd);
 int is_valid(command cmd);
+void initialize_commands(command* commands);
 void error_message();
-
-
-
 
 //Global variables and arrays
 command commands[NUM_COMMANDS];
@@ -75,13 +73,16 @@ int main(int argc, char** argv) {
     command cmd; //TODO: fix this...
 
     //Initialize and setup commands for the system
+    initialize_commands(commands);
 
     while (TRUE) {
         //Print prompt and read the command line
         cmd_line = read_command_line(cmd_line);
+        printf("%s\n", cmd_line);
 
         //Parse command line into command and arguments
         cmd = parse_command(cmd_line);
+        printf("%s\n", cmd.command);
 
         //Fork from parent as long as command exists
         if (is_valid(cmd)) {
@@ -90,9 +91,7 @@ int main(int argc, char** argv) {
             if (child_pid == 0) {
                 execute_command(cmd);
             } else if (child_pid > 0) {
-                waitpid(child_pid, &status, 0);
-                //print prompt again, since we are done waiting
-                need_to_print_prompt = TRUE;
+                waitpid(child_pid, &status, 0); //wait on the forked child...
             } else {
                 //something went wrong with forking
                 error_message();
@@ -117,37 +116,37 @@ int is_valid(command cmd) {
         }
     }
      */
-    return FALSE;
+    return TRUE;
 }
 
-void execute_command(command cmd) {
-
-}
-
-command parse_command(char *line) {
-    command cmd;
-    return cmd;
-}
-
-char* read_command_line(char * prompt) {
-    //fgets(prompt, MAX_BUFFER, STDIN_FILENO);
-    //printf("%s \n", prompt);
-    //char* buf;
-    return readline("Shells by the Seashore$ "); //TODO: free when done!
-    return prompt;
-}
-
-void print_prompt() {
-    //Print prompt using path name
-    //printf("Shells by the Seashore$ ");
-    char current_working_directory[MAX_BUFFER];
-    if(getcwd(current_working_directory, sizeof(current_working_directory)) != NULL) {
-        printf("%s$ ", current_working_directory);
-        fflush(stdout);
+int execute_command(command cmd) {
+//    printf("command: %s, %d\n", cmd.command, strcmp(cmd.command, "exit\0")==0);
+//    if(strcmp(cmd.command, "exit")==0) {
+//        exit(EXIT_SUCCESS);
+//    }
+    if(TRUE) {
+        exit(EXIT_SUCCESS);
     }
+
+    //Return NULL on error
     else {
-        error_message();
+        return 0; //Return Null
     }
+}
+
+command parse_command(char* line) {
+    printf("%d \n", strcmp(line, "exit")==0);
+    if(strcmp(line, "exit")==0) {
+        return commands[0];
+    }
+
+    //TODO: Return something like NULL if command is not recognized
+    //return NULL;
+    return commands[0]; //TODO: fix this!
+}
+
+char* read_command_line(char* prompt) {
+    return readline("Shells by the Seashore$ "); //TODO: free when done!
 }
 
 /*
@@ -155,7 +154,7 @@ void print_prompt() {
  */
 void initialize_commands(command* commands) {
     //Existing system. commands
-    commands[0].command = "exit\0";
+    commands[0].command = "exit";
     commands[0].arguments[0] = 0;
 }
 
