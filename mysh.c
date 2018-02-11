@@ -26,6 +26,13 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <zconf.h>
+#include <memory.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <readline/readline.h>
+#include <readline/history.h>
 
 //Macros
 #define TRUE 1
@@ -39,7 +46,7 @@
 //Structs
 typedef struct command
 {
-    int command;
+    char* command;
     int arguments[];
 } command;
 
@@ -55,66 +62,23 @@ void error_message();
 
 
 //Global variables and arrays
-int commands[NUM_COMMANDS];
-
-
+command commands[NUM_COMMANDS];
 
 /*
- * Method main
- */
-
-/*
- *
- * int
-     main (int argc, char **argv)
-     {
-	while (1){
-		int childPid;
-		char * cmdLine;
-
-	        printPrompt();
-
-	        cmdLine= readCommandLine(); //or GNU readline("");
-
-		cmd = parseCommand(cmdLine);
-
-		record command in history list (GNU readline history ?)
-
-		if ( isBuiltInCommand(cmd)){
-		    executeBuiltInCommand(cmd);
-		} else {
-		     childPid = fork();
-		     if (childPid == 0){
-			executeCommand(cmd); //calls execvp
-
-		     } else {
-			if (isBackgroundJob(cmd)){
-			        record in list of background jobs
-			} else {
-				waitpid (childPid);
-
-			}
-		    }
-	        }
-     }
+ * Method main()
  */
 int main(int argc, char** argv) {
     pid_t child_pid;
-    char cmd_line[MAX_BUFFER];
-    command cmd; //TODO: fix this...
+    char *cmd_line;
     int status;
-    int c;
     int need_to_print_prompt = TRUE;
+    command cmd; //TODO: fix this...
+
+    //Initialize and setup commands for the system
 
     while (TRUE) {
-        //Print prompt
-        if(need_to_print_prompt) {
-            print_prompt();
-            need_to_print_prompt = FALSE;
-        }
-
-        //read the command line to see if there is information to print out
-        read_command_line(cmd_line);
+        //Print prompt and read the command line
+        cmd_line = read_command_line(cmd_line);
 
         //Parse command line into command and arguments
         cmd = parse_command(cmd_line);
@@ -127,28 +91,33 @@ int main(int argc, char** argv) {
                 execute_command(cmd);
             } else if (child_pid > 0) {
                 waitpid(child_pid, &status, 0);
+                //print prompt again, since we are done waiting
+                need_to_print_prompt = TRUE;
             } else {
                 //something went wrong with forking
                 error_message();
             }
-        }
-
-        //if we are done waiting, print the prompt again
-        if (wait(&status) != -1) {
-            //print prompt again
-            need_to_print_prompt = TRUE;
-        }
-            //an error occured
-        else {
-            error_message();
+        } else {
+            if (strlen(cmd_line) > 0) {
+                printf("-bash: %s: command not found\n", cmd_line);
+            }
         }
     }
-
     return EXIT_SUCCESS;
 }
 
+/*
+ * Method to check if a command is valid
+ */
 int is_valid(command cmd) {
-    return 0;
+    /*
+    for(int i=0; i<NUM_COMMANDS; i++) {
+        if(strcmp(commands[i].command, cmd.command) == 0) {
+            return TRUE;
+        }
+    }
+     */
+    return FALSE;
 }
 
 void execute_command(command cmd) {
@@ -162,7 +131,9 @@ command parse_command(char *line) {
 
 char* read_command_line(char * prompt) {
     //fgets(prompt, MAX_BUFFER, STDIN_FILENO);
-    printf("%s \n", prompt);
+    //printf("%s \n", prompt);
+    //char* buf;
+    return readline("Shells by the Seashore$ "); //TODO: free when done!
     return prompt;
 }
 
@@ -177,6 +148,15 @@ void print_prompt() {
     else {
         error_message();
     }
+}
+
+/*
+ * Method to initialize commands
+ */
+void initialize_commands(command* commands) {
+    //Existing system. commands
+    commands[0].command = "exit\0";
+    commands[0].arguments[0] = 0;
 }
 
 /*
