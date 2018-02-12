@@ -100,13 +100,13 @@ int main(int argc, char** argv) {
                 error_message();
             }
             if (cmd_line != NULL) {
-                free(cmd_line);
-                cmd_line = NULL;
+                //free(cmd_line);
+                //cmd_line = NULL;
             }
         } else {
             if (cmd_line != NULL) {
-                free(cmd_line);
-                cmd_line = NULL;
+                //free(cmd_line);
+                //cmd_line = NULL;
             }
         }
         execute_built_in_command(cmd);
