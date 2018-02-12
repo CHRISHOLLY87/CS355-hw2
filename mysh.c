@@ -346,7 +346,9 @@ int parse_command_line(char*** parsed_words, char* line) {
 
     //Return the words
     *parsed_words = tokens;
-    return TRUE; //success!
+    error_message();
+    return FALSE;
+//    return TRUE;
 }
 
 /*
