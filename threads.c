@@ -2,6 +2,7 @@
 #include <pthread.h>
 #include <sys/time.h>
 #include <stdlib.h>
+#include <zconf.h>
 
 //constants
 #ifndef _REENTRANT
@@ -160,6 +161,15 @@ void* matrix_multiplication(void* parameters) {
  void* row_computation(void* row) {
     long sum = 0; //single row value/variable
     int row_to_add = (int) row; //cast the passed in void parameter
+    struct timeval now;
+    unsigned int millisecs;
+
+    //random time for sleep
+    gettimeofday(&now, NULL);
+    millisecs = now.tv_usec;
+
+    int random_time = rand_r(&(millisecs)) % 9 + 2; //number between 2 and 10
+
     for (int i = 0; i < N; i++) {
         sum += C[row_to_add][i];
     }
@@ -171,6 +181,7 @@ void* matrix_multiplication(void* parameters) {
     }
 
     if (MAX_ROW_SUM < sum) {
+        sleep(random_time);
         MAX_ROW_SUM = sum;
     }
 
