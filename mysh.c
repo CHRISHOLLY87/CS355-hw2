@@ -49,12 +49,13 @@
 typedef struct command
 {
     char* command;
-    char* arguments;
+    char** arguments;
 } command;
 
 //Method declarations
 char *read_command_line(void); //took method from website https://brennan.io/2015/01/16/write-a-shell-in-c/
-void* parse_command(char* line);
+char** parse_command_line(char* line);
+command* parse_command(char** words);
 int execute_command(command cmd);
 void execute_built_in_command(command* command);
 int command_equals(command command1, command command2);
@@ -73,6 +74,7 @@ int main(int argc, char** argv) {
     char *cmd_line;
     int status;
     command *cmd; //TODO: fix this...
+    char **cmd_words;
     char string[MAX_BUFFER];
 
     //Initialize and setup commands for the system
@@ -84,39 +86,37 @@ int main(int argc, char** argv) {
         cmd_line = read_command_line();
 
         //Parse command line into command and arguments
-        cmd = parse_command(cmd_line);
-        //Something went wrong with parsing, then NULL is returned and the shell will respond accordingly by exiting
-        if (cmd == NULL) {
-            free(cmd_line);
-            error_message();
-        }
+        cmd_words = parse_command_line(cmd_line);
+        cmd = parse_command(cmd_words);
 
         //Fork from parent as long as command exists
-        if (!is_built_in(*cmd)) {
-            pid = fork(); //TODO: check error checked
+        if (cmd->command != NULL) {
+            if (!is_built_in(*cmd)) {
+                pid = fork(); //TODO: check error checked
 
-            if (pid == 0) {
-                execute_command(*cmd);
-            } else if (pid > 0) {
-                waitpid(pid, &status, 0); //wait on the forked child...
+                if (pid == 0) {
+                    execute_command(*cmd);
+                } else if (pid > 0) {
+                    waitpid(pid, &status, 0); //wait on the forked child...
+                } else {
+                    //something went wrong with forking
+                    error_message();
+                }
+                if (cmd_line != NULL) {
+                    free(cmd_line);
+                    cmd_line = NULL;
+                }
             } else {
-                //something went wrong with forking
-                error_message();
+                if (cmd_line != NULL) {
+                    free(cmd_line);
+                    cmd_line = NULL;
+                }
+                execute_built_in_command(cmd);
             }
-            if (cmd_line != NULL) {
-                free(cmd_line);
-                cmd_line = NULL;
-            }
-        } else {
-            if (cmd_line != NULL) {
-                free(cmd_line);
-                cmd_line = NULL;
-            }
-            execute_built_in_command(cmd);
-        }
 
-        if (cmd_line != NULL) {
-            free(cmd_line);
+            if (cmd_line != NULL) {
+                free(cmd_line);
+            }
         }
     }
     return EXIT_SUCCESS;
@@ -149,7 +149,7 @@ int is_built_in(command cmd) {
  * Method to execute a command using standard path search
  */
 int execute_command(command cmd) {
-    if (execvp(cmd.command, &(cmd.arguments)) == -1) {
+    if (execvp(cmd.command, cmd.arguments) == -1) {
         printf("-bash: %s: command not found\n", cmd.command);
     }
     return 0;
@@ -157,27 +157,58 @@ int execute_command(command cmd) {
 
 /*
  * Method to parse input shell command
+ * Used some copy and paste from method, below. (did look at https://brennan.io/2015/01/16/write-a-shell-in-c/)
+ * Looked at https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm for help understanding the functionality of strtok()
  */ //TODO: prevent memory leaks here! also make sure to terminate arguments array with null, so that it can be processed by execvp if it is destined to go there...
-void* parse_command(char* line) {
-    int parsing_happened = FALSE;
+char** parse_command_line(char* line) {
+    int bufsize = MAX_BUFFER;
+    int position = 0;
+    char** tokens = malloc(sizeof(char*) * bufsize);
+    const char s[2] = " ";
+    char* current_token;
+
+    if (!tokens) {
+        error_message();
+    }
+
+    current_token = strtok(line, s);
+    while(current_token!=NULL) {
+            tokens[position] = current_token;
+            position++;
 
 
-    //parse here
-    //if(parsing happened)
-    //parse if there is something to parse
-   /* command *return_command = (command *) malloc(sizeof(command));
-    return_command->command = "exit";
-    return_command->arguments = NULL;
-    */
-    //else
+        // If we have exceeded the buffer, reallocate. (copied and pasted from, below...)
+        if (position >= bufsize) {
+            bufsize += MAX_BUFFER;
+            tokens = realloc(tokens, bufsize);
+            if (!tokens) {
+                error_message();
+            }
+        }
 
-    //Default return value
-    return NULL;
+        current_token = strtok(NULL, s);
+    }
+
+    //NULL terminate the buffer
+    tokens[position] = NULL;
+
+    //Return the words
+    return tokens;
+}
+
+/*
+ * Method to take words from command line and
+ */
+command* parse_command(char** words) {
+    command* return_value = malloc(sizeof(command));
+    return_value->command = words[0];
+    return_value->arguments = words; //TODO: make sure this is null terminated like required for execvp!
+    return return_value;
 }
 
 /*
  * Method for reading the command line input from the user prompt line.
- * Took method, below, from website: https://brennan.io/2015/01/16/write-a-shell-in-c/
+ * Took parts of method, below, from website: https://brennan.io/2015/01/16/write-a-shell-in-c/. I also modified it to use methods I had.
  */
 char* read_command_line(void) {
     int bufsize = MAX_BUFFER;
@@ -186,8 +217,7 @@ char* read_command_line(void) {
     int c;
 
     if (!buffer) {
-        fprintf(stderr, "allocation error\n");
-        exit(EXIT_FAILURE);
+        error_message();
     }
 
     while (1) {
@@ -208,8 +238,7 @@ char* read_command_line(void) {
             bufsize += MAX_BUFFER;
             buffer = realloc(buffer, bufsize);
             if (!buffer) {
-                fprintf(stderr, "allocation error\n");
-                exit(EXIT_FAILURE);
+                error_message();
             }
         }
     }
