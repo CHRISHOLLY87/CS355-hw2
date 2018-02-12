@@ -24,7 +24,7 @@
 
 //Imports
 #include <stdlib.h>
-#include <printf.h>
+#include <stdio.h>
 #include <zconf.h>
 #include <memory.h>
 
@@ -217,7 +217,7 @@ char** parse_command_line(char* line) {
 command* parse_command(char** words) {
     command* return_value = malloc(sizeof(command));
     return_value->command = words[0];
-    return_value->arguments = words; //TODO: make sure this is null terminated like required for execvp!
+    return_value->arguments = words; //TODO: make sure this is null terminated like required for execvp! (think about what happens if it is perfectly filled??)
     return return_value;
 }
 
