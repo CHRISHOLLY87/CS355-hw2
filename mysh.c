@@ -104,17 +104,18 @@ int main(int argc, char** argv) {
                 cmd_line = NULL;
             }
         } else {
-            if (cmd_line != NULL) {}
-            free(cmd_line);
-            cmd_line = NULL;
+            if (cmd_line != NULL) {
+                free(cmd_line);
+                cmd_line = NULL;
+            }
         }
         execute_built_in_command(cmd);
-    }
-    if (cmd_line != NULL) {
-        free(cmd_line);
-        cmd_line = NULL;
-    }
 
+        if (cmd_line != NULL) {
+            //free(cmd_line);
+            cmd_line = NULL;
+        }
+    }
     return EXIT_SUCCESS;
 }
 
