@@ -124,12 +124,13 @@ int main(int argc, char** argv) {
                     cmd = NULL;
                 }
             } else {
-                printf("Command is built in");
+                printf("Command is built in...\n");
+                int return_val = execute_built_in_command(cmd);
+
                 if (cmd_line != NULL) {
                     free(cmd_line);
                     cmd_line = NULL;
                 }
-                int return_val = execute_built_in_command(cmd);
 
                 if (cmd_words != NULL) {
                     free(cmd_words);
