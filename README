@@ -1,0 +1,11 @@
+Your name: Sarah Depew
+
+How to compile: There is a Makefile, so just type make to make and clean.
+
+How to run it:
+
+Known Bugs and Limitations:
+
+File directory: N/A
+
+Resources: I used stack overflow, use code from https://brennan.io/2015/01/16/write-a-shell-in-c/ and looked at https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm, went to TA sessions,and worked with Kellie, Dylan, and Ju-Han.
