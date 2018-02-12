@@ -1,27 +1,3 @@
-/*
-* 2. Simple Shell: design and implement a simple shell mysh. The basic function of a shell is to accept lines of text as
-* input and execute programs in response.
-* The requirements are listed below:
-* (a) Simple execution of commands in the foreground. These are the steps of the most basic shell function, which are looped:
-* i. Print a prompt of your choice (done)
-* ii. Get the command line (done?)
-* iii. Parse the command line into command and arguments
-* iv. Fork a child which executes the command with its arguments, wait for the child to terminate
-* Relevant system calls are fork(), wait(), exec() families and exit().
-* //TODO: figure out how to do this...
- * Note that your shell should be able to perform standard path search according to the search path defined by the PATH
- * environment variable. Hint: remember execvp. //TODO: figure out how to path searching in shell..
-* (b) Built-in commands
-* • exit: Exits mysh and returns to whatever shell you started mysh from. //TODO: clarify what this means?
-* (c) When parsing the command line, mysh should ignore all white spaces. You should find the Clib functions isspace() and strtok() useful.
-* We are going to build on this shell, so please have future expansions in mind when you write your parser.
-* (d) Thou shall not crash. Since the shell is at the front line of user interaction, and its quality reflects heavily on the usability
-* of an OS, it is paramount that mysh does not crash under any circumstances. Granted it doesn’t do much yet compared to a real shell
-* and feel free to simply report error for all things you do not know how to handle. However, your shell must be able to check for
-* and catch all the exceptions. Also remember to check for memory leaks.
-* (e) When in doubt, consult the man pages and do what Linux does.
-*/
-
 //Imports
 #include <stdlib.h>
 #include <stdio.h>
@@ -143,7 +119,7 @@ int main(int argc, char** argv) {
         //Fork from parent as long as command exists
         if (cmd->command != NULL) {
             if (!is_built_in(*cmd)) {
-                pid = fork(); //TODO: check error checked
+                pid = fork();
 
                 if (pid == 0) {
                     if(!execute_command(*cmd)) {
@@ -165,9 +141,23 @@ int main(int argc, char** argv) {
                     }
                 } else if (pid > 0) {
                     waitpid(pid, &status, 0); //wait on the forked child...
-                } else {
-                    //something went wrong with forking
+                } else {    //something went wrong with forking
                     error_message();
+                    if (cmd_line != NULL) {
+                        free(cmd_line);
+                        cmd_line = NULL;
+                    }
+
+                    if (cmd_words != NULL) {
+                        free(cmd_words);
+                        cmd_words = NULL;
+                    }
+
+                    if (cmd != NULL) {
+                        free(cmd);
+                        cmd = NULL;
+                    }
+                    exit(EXIT_FAILURE);
                 }
 
                 if (cmd_line != NULL) {
@@ -280,7 +270,7 @@ int read_command_line(char** return_val) {
 
     while (1) {
         // Read a character from stdin
-        c = getchar(); //TODO: why does getc(STD_IN) fail?
+        c = getchar();
 
         // If we hit EOF, replace it with a null character and return as means of breaking the loop.
         if (c == EOF || c == '\n') {
@@ -309,14 +299,13 @@ int read_command_line(char** return_val) {
  * Method to parse input shell command. Returns TRUE upon success and FALSE upon error.
  * Used some copy and paste from method, below. (did look at https://brennan.io/2015/01/16/write-a-shell-in-c/)
  * Looked at https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm for help understanding the functionality of strtok()
- */ //TODO: prevent memory leaks here! also make sure to terminate arguments array with null, so that it can be processed by execvp if it is destined to go there...
+ */
 int parse_command_line(char*** parsed_words, char* line) {
     int bufsize = MAX_BUFFER;
     int position = 0;
-    char** tokens = malloc(sizeof(char*) * bufsize); //2-d array
+    char **tokens = malloc(sizeof(char *) * bufsize); //2-d array
     const char s[2] = " "; //want to separate using spaces or other deliminators
-    char* current_token;
-    //char** save_ptr;
+    char *current_token;
 
     if (tokens == NULL) {
         error_message();
@@ -324,9 +313,9 @@ int parse_command_line(char*** parsed_words, char* line) {
     }
 
     current_token = strtok(line, s); //TODO: figure out how to use strtok_r
-    while(current_token!=NULL) {
-            tokens[position] = current_token;
-            position++;
+    while (current_token != NULL) {
+        tokens[position] = current_token;
+        position++;
 
         // If we have exceeded the buffer, reallocate. (copied and pasted from, below...)
         if (position >= bufsize) {
@@ -346,9 +335,7 @@ int parse_command_line(char*** parsed_words, char* line) {
 
     //Return the words
     *parsed_words = tokens;
-    error_message();
-    return FALSE;
-//    return TRUE;
+    return TRUE;
 }
 
 /*
@@ -356,7 +343,7 @@ int parse_command_line(char*** parsed_words, char* line) {
  */
 void parse_command(command* parsed_command, char** words) {
     parsed_command->command = words[0];
-    parsed_command->arguments = words; //TODO: make sure this is null terminated like required for execvp! (think about what happens if it is perfectly filled??)
+    parsed_command->arguments = words;
 }
 
  /*
