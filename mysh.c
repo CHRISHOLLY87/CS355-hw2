@@ -53,7 +53,7 @@ typedef struct command
 } command;
 
 //Method declarations
-char *read_command_line(char *prompt);
+char *read_command_line(void); //took method from website https://brennan.io/2015/01/16/write-a-shell-in-c/
 command* parse_command(char* line);
 int execute_command(command cmd);
 void execute_built_in_command(command* command);
@@ -81,13 +81,13 @@ int main(int argc, char** argv) {
     while (TRUE) {
         //Print prompt and read the command line
         printf("Shell>> ");
-        cmd_line = read_command_line(string);
+        cmd_line = read_command_line();
 
         //Parse command line into command and arguments
         cmd = parse_command(cmd_line);
 
         //Fork from parent as long as command exists
-        if (!is_built_in(*cmd)) {
+        if (cmd->command!=NULL && !is_built_in(*cmd)) {
             pid = fork(); //TODO: check error checked
 
             if (pid == 0) {
@@ -99,19 +99,19 @@ int main(int argc, char** argv) {
                 error_message();
             }
             if (cmd_line != NULL) {
-                //free(cmd_line);
-                //cmd_line = NULL;
+                free(cmd_line);
+                cmd_line = NULL;
             }
         } else {
             if (cmd_line != NULL) {
-                //free(cmd_line);
-                //cmd_line = NULL;
+                free(cmd_line);
+                cmd_line = NULL;
             }
+            execute_built_in_command(cmd);
         }
-        execute_built_in_command(cmd);
 
         if (cmd_line != NULL) {
-            //free(cmd_line);
+            free(cmd_line);
             cmd_line = NULL;
         }
     }
@@ -150,19 +150,61 @@ int execute_command(command cmd) {
  */ //TODO: prevent memory leak here!
 command* parse_command(char* line) {
     //parse here
-    command* return_command = (command* ) malloc(sizeof(command));
-    return_command->command = "nope";
+    //parse if there is something to parse
+    command *return_command = (command *) malloc(sizeof(command));
+    return_command->command = "exit";
     return_command->arguments = NULL;
-
 
     return return_command;
 
     //TODO: add null terminator at end
 }
 
+/*
 char* read_command_line(char* prompt) {
     //return readline("Shells by the Seashore$ "); //TODO: free when done! //use fgets() not readline(), since there are a lot of leaks here
     fgets(prompt, MAX_BUFFER, stdin);
+}
+ */
+
+/*
+ * Took method, below, from website: https://brennan.io/2015/01/16/write-a-shell-in-c/
+ */
+char* read_command_line(void)
+{
+    int bufsize = MAX_BUFFER;
+    int position = 0;
+    char *buffer = malloc(sizeof(char) * bufsize);
+    int c;
+
+    if (!buffer) {
+        fprintf(stderr, "allocation error\n");
+        exit(EXIT_FAILURE);
+    }
+
+    while (1) {
+        // Read a character
+        c = getchar();
+
+        // If we hit EOF, replace it with a null character and return.
+        if (c == EOF || c == '\n') {
+            buffer[position] = '\0';
+            return buffer;
+        } else {
+            buffer[position] = c;
+        }
+        position++;
+
+        // If we have exceeded the buffer, reallocate.
+        if (position >= bufsize) {
+            bufsize += MAX_BUFFER;
+            buffer = realloc(buffer, bufsize);
+            if (!buffer) {
+                fprintf(stderr, "allocation error\n");
+                exit(EXIT_FAILURE);
+            }
+        }
+    }
 }
 
 
