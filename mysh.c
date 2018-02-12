@@ -3,8 +3,8 @@
 * input and execute programs in response.
 * The requirements are listed below:
 * (a) Simple execution of commands in the foreground. These are the steps of the most basic shell function, which are looped:
-* i. Print a prompt of your choice
-* ii. Get the command line
+* i. Print a prompt of your choice (done)
+* ii. Get the command line (done?)
 * iii. Parse the command line into command and arguments
 * iv. Fork a child which executes the command with its arguments, wait for the child to terminate
 * Relevant system calls are fork(), wait(), exec() families and exit().
@@ -54,7 +54,7 @@ int execute_built_in_command(command* command);
 int command_equals(command command1, command command2);
 int is_built_in(command cmd);
 void initialize_built_in_commands();
-void free_memory(char* cmd_line, char** cmd_words, command* cmd);
+void free_memory(char** cmd_line, char*** cmd_words, command** cmd);
 void error_message();
 
 //Global variables and arrays
@@ -65,28 +65,27 @@ command built_in_commands[NUM_COMMANDS];
  * Referenced pseudocode layout on https://www.cs.cornell.edu/courses/cs414/2004su/homework/shell/shell.html
  */
 int main(int argc, char** argv) {
+    //Local variables
     pid_t pid;
     char *cmd_line;
     int status;
-    command *cmd; //TODO: fix this...
+    command *cmd;
     char **cmd_words;
 
-    //Initialize and setup commands for the system
+    //Initialize and setup system commands
     initialize_built_in_commands();
 
     while (TRUE) {
         //Print prompt and read the command line
-        printf("Shell>> ");
+        printf("Shells by the Seashore$ ");
         cmd_line = read_command_line();
 
         //Parse command line into command and arguments
         cmd_words = parse_command_line(cmd_line);
         cmd = parse_command(cmd_words);
-        printf("%s\n", cmd->command);
 
         //Fork from parent as long as command exists
         if (cmd->command != NULL) {
-            printf("Is built in?: %d\n", is_built_in(*cmd));
             if (!is_built_in(*cmd)) {
                 pid = fork(); //TODO: check error checked
 
@@ -99,12 +98,37 @@ int main(int argc, char** argv) {
                     error_message();
                 }
 
-                free_memory(cmd_line, cmd_words, cmd);
+                if (cmd_line != NULL) {
+                    free(cmd_line);
+                    cmd_line = NULL;
+                }
+
+                if (cmd_words != NULL) {
+                    free(cmd_words);
+                    cmd_words = NULL;
+                }
+
+                if (cmd != NULL) {
+                    free(cmd);
+                    cmd = NULL;
+                }
             } else {
-                printf("Command is built in...\n");
                 int return_val = execute_built_in_command(cmd);
 
-                free_memory(cmd_line, cmd_words, cmd);
+                if (cmd_line != NULL) {
+                    free(cmd_line);
+                    cmd_line = NULL;
+                }
+
+                if (cmd_words != NULL) {
+                    free(cmd_words);
+                    cmd_words = NULL;
+                }
+
+                if (cmd != NULL) {
+                    free(cmd);
+                    cmd = NULL;
+                }
 
                 //want to exit ONLY after freeing all memory
                 if (return_val == TRUE) {
@@ -112,30 +136,23 @@ int main(int argc, char** argv) {
                 }
             }
 
-            free_memory(cmd_line, cmd_words, cmd);
+            if (cmd_line != NULL) {
+                free(cmd_line);
+                cmd_line = NULL;
+            }
+
+            if (cmd_words != NULL) {
+                free(cmd_words);
+                cmd_words = NULL;
+            }
+
+            if (cmd != NULL) {
+                free(cmd);
+                cmd = NULL;
+            }
         }
     }
     return EXIT_SUCCESS;
-}
-
-/*
- * Method to free all memory used in program
- */
-void free_memory(char* cmd_line, char** cmd_words, command* cmd) {
-    if (cmd_line != NULL) {
-        free(cmd_line);
-        cmd_line = NULL;
-    }
-
-    if (cmd_words != NULL) {
-        free(cmd_words);
-        cmd_words = NULL;
-    }
-
-    if (cmd != NULL) {
-        free(cmd);
-        cmd = NULL;
-    }
 }
 
 /*
@@ -143,6 +160,7 @@ void free_memory(char* cmd_line, char** cmd_words, command* cmd) {
  * Talked with classmates in TA session
  */
 int execute_built_in_command(command* command) {
+    //If the command equals the "exit" command for the system
     if (command_equals(built_in_commands[0], *command)) {
         return TRUE; //want to exit and break the while loop
     }
@@ -172,6 +190,45 @@ int execute_command(command cmd) {
 }
 
 /*
+ * Method for reading the command line input from the user prompt line.
+ * Took parts of method, below, from website: https://brennan.io/2015/01/16/write-a-shell-in-c/. I also modified it to use methods I had written.
+ */
+char* read_command_line(void) {
+    int bufsize = MAX_BUFFER;
+    int position = 0;
+    char *buffer = malloc(sizeof(char) * bufsize);
+    int c;
+
+    //Raise an error if the memory malloc did not go through (we know our size is >0, so NULL is invalid)
+    if (buffer == NULL) {
+        error_message();
+    }
+
+    while (1) {
+        // Read a character from stdin
+        c = getchar(); //TODO: why does getc(STD_IN) fail?
+
+        // If we hit EOF, replace it with a null character and return as means of breaking the loop.
+        if (c == EOF || c == '\n') {
+            buffer[position] = '\0'; //Null terminate the string!
+            return buffer;
+        } else {
+            buffer[position] = c;
+        }
+        position++;
+
+        // If we have exceeded the buffer, reallocate.
+        if (position >= bufsize) { //>=, since we also need room for the null terminator
+            bufsize += MAX_BUFFER;
+            buffer = realloc(buffer, bufsize);
+            if (buffer == NULL) {
+                error_message();
+            }
+        }
+    }
+}
+
+/*
  * Method to parse input shell command
  * Used some copy and paste from method, below. (did look at https://brennan.io/2015/01/16/write-a-shell-in-c/)
  * Looked at https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm for help understanding the functionality of strtok()
@@ -179,25 +236,25 @@ int execute_command(command cmd) {
 char** parse_command_line(char* line) {
     int bufsize = MAX_BUFFER;
     int position = 0;
-    char** tokens = malloc(sizeof(char*) * bufsize);
+    char** tokens = malloc(sizeof(char*) * bufsize); //2-d array
     const char s[2] = " "; //want to separate using spaces or other deliminators
     char* current_token;
+    //char** save_ptr;
 
-    if (!tokens) {
+    if (tokens == NULL) {
         error_message();
     }
 
-    current_token = strtok(line, s);
+    current_token = strtok(line, s); //TODO: figure out how to use strtok_r
     while(current_token!=NULL) {
             tokens[position] = current_token;
             position++;
-
 
         // If we have exceeded the buffer, reallocate. (copied and pasted from, below...)
         if (position >= bufsize) {
             bufsize += MAX_BUFFER;
             tokens = realloc(tokens, bufsize);
-            if (!tokens) {
+            if (tokens == NULL) {
                 error_message();
             }
         }
@@ -205,7 +262,7 @@ char** parse_command_line(char* line) {
         current_token = strtok(NULL, s);
     }
 
-    //NULL terminate the buffer
+    //NULL terminate the buffer to be used by execvp
     tokens[position] = NULL;
 
     //Return the words
@@ -217,54 +274,19 @@ char** parse_command_line(char* line) {
  */
 command* parse_command(char** words) {
     command* return_value = malloc(sizeof(command));
+    if(return_value == NULL) {
+        error_message();
+    }
     return_value->command = words[0];
     return_value->arguments = words; //TODO: make sure this is null terminated like required for execvp! (think about what happens if it is perfectly filled??)
     return return_value;
-}
-
-/*
- * Method for reading the command line input from the user prompt line.
- * Took parts of method, below, from website: https://brennan.io/2015/01/16/write-a-shell-in-c/. I also modified it to use methods I had.
- */
-char* read_command_line(void) {
-    int bufsize = MAX_BUFFER;
-    int position = 0;
-    char *buffer = malloc(sizeof(char) * bufsize);
-    int c;
-
-    if (!buffer) {
-        error_message();
-    }
-
-    while (1) {
-        // Read a character
-        c = getchar();
-
-        // If we hit EOF, replace it with a null character and return.
-        if (c == EOF || c == '\n') {
-            buffer[position] = '\0';
-            return buffer;
-        } else {
-            buffer[position] = c;
-        }
-        position++;
-
-        // If we have exceeded the buffer, reallocate.
-        if (position >= bufsize) {
-            bufsize += MAX_BUFFER;
-            buffer = realloc(buffer, bufsize);
-            if (!buffer) {
-                error_message();
-            }
-        }
-    }
 }
 
  /*
   * Method to initialize built-in commands
   */
 void initialize_built_in_commands() {
-     built_in_commands[0].command = "exit";
+     built_in_commands[0].command = "exit\0";
      built_in_commands[0].arguments = NULL;
  }
 
@@ -272,7 +294,6 @@ void initialize_built_in_commands() {
  * Method to compare the command portion of the struct and see if they are equal; mainly used for built-in commands to know what to do
  */
 int command_equals(command command1, command command2) {
-
     int compare_value = strcmp(command1.command, command2.command);
     if (compare_value == 0) {
         return TRUE;
@@ -286,5 +307,6 @@ int command_equals(command command1, command command2) {
  */
 void error_message() {
     printf("I am sorry, but there has been an error. Exiting now.\n");
+    //TODO: FREE MEMORY!! I NEED TO FREE BEFORE EXITING!!
     exit(EXIT_FAILURE);
 }
