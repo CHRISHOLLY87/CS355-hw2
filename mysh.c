@@ -85,10 +85,9 @@ int main(int argc, char** argv) {
 
         //Parse command line into command and arguments
         cmd = parse_command(cmd_line);
-        //Something went wrong with parsing...
+        //Something went wrong with parsing, then NULL is returned and the shell will respond accordingly by exiting
         if (cmd == NULL) {
             free(cmd_line);
-            
             error_message();
         }
 
@@ -123,6 +122,9 @@ int main(int argc, char** argv) {
     return EXIT_SUCCESS;
 }
 
+/*
+ * Method to execute built-in commands; the only supported command, currently, is exit. Please note that all memory is freed before exiting.
+ */
 void execute_built_in_command(command* command) {
     if (command_equals(built_in_commands[0], *command)) {
         //TODO: free memory here
@@ -132,7 +134,7 @@ void execute_built_in_command(command* command) {
 }
 
 /*
- * Method to check if a command is valid
+ * Method to check if a command is built-in or not
  */
 int is_built_in(command cmd) {
     for(int i=0; i<NUM_COMMANDS; i++) {
@@ -143,6 +145,9 @@ int is_built_in(command cmd) {
     return FALSE;
 }
 
+/*
+ * Method to execute a command using standard path search
+ */
 int execute_command(command cmd) {
     if (execvp(cmd.command, &(cmd.arguments)) == -1) {
         printf("-bash: %s: command not found\n", cmd.command);
@@ -152,9 +157,11 @@ int execute_command(command cmd) {
 
 /*
  * Method to parse input shell command
- */ //TODO: prevent memory leak here!
+ */ //TODO: prevent memory leaks here! also make sure to terminate arguments array with null, so that it can be processed by execvp if it is destined to go there...
 void* parse_command(char* line) {
     int parsing_happened = FALSE;
+
+
     //parse here
     //if(parsing happened)
     //parse if there is something to parse
@@ -169,13 +176,7 @@ void* parse_command(char* line) {
 }
 
 /*
-char* read_command_line(char* prompt) {
-    //return readline("Shells by the Seashore$ "); //TODO: free when done! //use fgets() not readline(), since there are a lot of leaks here
-    fgets(prompt, MAX_BUFFER, stdin);
-}
- */
-
-/*
+ * Method for reading the command line input from the user prompt line.
  * Took method, below, from website: https://brennan.io/2015/01/16/write-a-shell-in-c/
  */
 char* read_command_line(void) {
@@ -214,15 +215,17 @@ char* read_command_line(void) {
     }
 }
 
-
  /*
-  * Method to initialize commands
+  * Method to initialize built-in commands
   */
 void initialize_built_in_commands() {
      built_in_commands[0].command = "exit";
      built_in_commands[0].arguments = NULL;
  }
 
+/*
+ * Method to compare the command portion of the struct and see if they are equal; mainly used for built-in commands to know what to do
+ */
 int command_equals(command command1, command command2) {
     int compare_value = strcmp(command1.command, command2.command);
     if (compare_value == 0) {
