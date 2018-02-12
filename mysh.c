@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
 
     while (TRUE) {
         //Print prompt and read the command line
-        printf("Shell> ");
+        printf("Shell>> ");
         cmd_line = read_command_line(string);
         //printf("cmdline %s\n", cmd_line);
 
