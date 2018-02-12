@@ -99,15 +99,15 @@ int main(int argc, char** argv) {
                 //something went wrong with forking
                 error_message();
             }
-            free(cmd_line);
-            cmd_line = NULL;
+            //free(cmd_line);
+            //cmd_line = NULL;
         } else {
-            free(cmd_line);
-            cmd_line = NULL;
+            //free(cmd_line);
+            //cmd_line = NULL;
             execute_built_in_command(cmd);
         }
         if (cmd_line != NULL) {
-            free(cmd_line);
+            //free(cmd_line);
         }
     }
     return EXIT_SUCCESS;
@@ -116,7 +116,8 @@ int main(int argc, char** argv) {
 void execute_built_in_command(command* command) {
     if (command_equals(built_in_commands[0], *command)) {
         //TODO: free memory here
-        free(command);
+        //
+        // free(command);
         exit(EXIT_SUCCESS);
     }
 }
