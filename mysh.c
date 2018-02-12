@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
     pid_t pid;
     char *cmd_line;
     int status;
-    command* cmd; //TODO: fix this...
+    command *cmd; //TODO: fix this...
     char string[MAX_BUFFER];
 
     //Initialize and setup commands for the system
@@ -100,11 +100,15 @@ int main(int argc, char** argv) {
                 error_message();
             }
             free(cmd_line);
+            cmd_line = NULL;
         } else {
             free(cmd_line);
+            cmd_line = NULL;
             execute_built_in_command(cmd);
         }
-        free(cmd_line);
+        if (cmd_line != NULL) {
+            free(cmd_line);
+        }
     }
     return EXIT_SUCCESS;
 }
