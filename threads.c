@@ -183,7 +183,7 @@ void* matrix_multiplication(void* parameters) {
  */
  void* row_computation(void* row) {
     int sum = 0; //single row value/variable
-    int row_to_add = (int) row; //cast the passed in void parameter
+    int row_to_add = (intptr_t) row; //cast the passed in void parameter
     for (int i = 0; i < N; i++) {
         sum += C[row_to_add][i];
     }

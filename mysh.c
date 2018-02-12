@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <zconf.h>
 #include <memory.h>
+#include <sys/wait.h>
 
 //Macros
 #define TRUE 1
