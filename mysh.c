@@ -49,7 +49,7 @@ typedef struct command
 int read_command_line(char**); //took method from website https://brennan.io/2015/01/16/write-a-shell-in-c/
 int parse_command_line(char*** parsed_words, char* line);
 void parse_command(command* parsed_command, char** words);
-void execute_command(command cmd);
+int execute_command(command cmd);
 int execute_built_in_command(command* command);
 int command_equals(command command1, command command2);
 int is_built_in(command cmd);
@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
         //Print prompt and read the command line
         printf("Shells by the Seashore$ ");
         read_command_status = read_command_line(&cmd_line);
-        if(!read_command_status) {
+        if (!read_command_status) {
             //Free memory and exit on failure
             if (cmd_line != NULL) {
                 free(cmd_line);
@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
 
         //Parse command line into command and arguments
         parse_command_status = parse_command_line(&cmd_words, cmd_line);
-        if(!parse_command_status) {
+        if (!parse_command_status) {
             //Free memory and exit on failure
             if (cmd_line != NULL) {
                 free(cmd_line);
@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
             exit(EXIT_FAILURE);
         }
         cmd = malloc(sizeof(command));
-        if(cmd == NULL) {
+        if (cmd == NULL) {
             error_message();
             //Free memory and exit on failure
             if (cmd_line != NULL) {
@@ -146,7 +146,23 @@ int main(int argc, char** argv) {
                 pid = fork(); //TODO: check error checked
 
                 if (pid == 0) {
-                    execute_command(*cmd);
+                    if(!execute_command(*cmd)) {
+                        if (cmd_line != NULL) {
+                            free(cmd_line);
+                            cmd_line = NULL;
+                        }
+
+                        if (cmd_words != NULL) {
+                            free(cmd_words);
+                            cmd_words = NULL;
+                        }
+
+                        if (cmd != NULL) {
+                            free(cmd);
+                            cmd = NULL;
+                        }
+                        exit(EXIT_FAILURE);
+                    }
                 } else if (pid > 0) {
                     waitpid(pid, &status, 0); //wait on the forked child...
                 } else {
@@ -238,10 +254,12 @@ int is_built_in(command cmd) {
 /*
  * Method to execute a command using standard path search; returns if success or not
  */
-void execute_command(command cmd) {
+int execute_command(command cmd) {
     if (execvp(cmd.command, cmd.arguments) == -1) {
         printf("-bash: %s: command not found\n", cmd.command);
+        return FALSE;
     }
+    return TRUE;
 }
 
 /*
