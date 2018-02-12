@@ -11,19 +11,19 @@
 #define N 3
 
 //matrices
-int A[N][N];
-int B[N][N];
-int C[N][N];
+long A[N][N];
+long B[N][N];
+long C[N][N];
 
 //variables
-int MAX_ROW_SUM = 0;
+long MAX_ROW_SUM = 0;
 pthread_mutex_t lock;
 
 //methods
 void* put_value(void * parameters);
 void* matrix_multiplication(void* parameters);
 void* row_computation(void* row);
-void print_array(int array[N][N]);
+void print_array(long array[N][N]);
 void error_message();
 
 //structs (to pass more than one parameter into thread method)
@@ -102,7 +102,7 @@ int main() {
     print_array(B);
     printf("Matrix C:\n");
     print_array(C);
-    printf("Max row sum: %d.\n", MAX_ROW_SUM);
+    printf("Max row sum: %ld.\n", MAX_ROW_SUM);
 
     //Done with mutex now, so destroy it
     if(pthread_mutex_destroy(&lock)!=0) {
@@ -127,13 +127,13 @@ void* put_value(void* parameters) {
     gettimeofday(&now, NULL);
     millisecs = now.tv_usec;
 
-    int random_value_A = rand_r(&(millisecs)) % 10; //I chose to make random value be between 0 and 9
+    int random_value_A = rand_r(&(millisecs)) % 10 ; //I chose to make random value be between 0 and 9, so that overflow did not happen
     A[row][column] = random_value_A;
 
     gettimeofday(&now, NULL);
     millisecs = now.tv_usec;
 
-    int random_value_B = rand_r(&(millisecs)) % 10; //I chose to make random value be between 0 and 9
+    int random_value_B = rand_r(&(millisecs)) % 10; //I chose to make random value be between 0 and 9, so that overflow did not happen
     B[row][column] = random_value_B;
 
     return NULL;
@@ -158,7 +158,7 @@ void* matrix_multiplication(void* parameters) {
  * Method to figure out what the maximum row sum is for the matrix in question
  */
  void* row_computation(void* row) {
-    int sum = 0; //single row value/variable
+    long sum = 0; //single row value/variable
     int row_to_add = (int) row; //cast the passed in void parameter
     for (int i = 0; i < N; i++) {
         sum += C[row_to_add][i];
@@ -184,10 +184,10 @@ void* matrix_multiplication(void* parameters) {
 /*
  * Method to print out values in an array
  */
-void print_array(int array[N][N]) {
+void print_array(long array[N][N]) {
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
-            printf("%d\t", array[i][j]);
+            printf("%ld\t", array[i][j]);
         }
         printf("\n");
     }
