@@ -119,21 +119,21 @@ int main() {
 void* put_value(void* parameters) {
     //variables
     struct timeval now;
-    unsigned int secs;
+    unsigned int millisecs;
     put_parameters *row_and_column = parameters;
     int row = row_and_column->row;
     int column = row_and_column->column;
 
     gettimeofday(&now, NULL);
-    secs = now.tv_usec;
+    millisecs = now.tv_usec;
 
-    int random_value_A = rand_r(&(secs));
+    int random_value_A = rand_r(&(millisecs)) % 10; //I chose to make random value be between 0 and 9
     A[row][column] = random_value_A;
 
     gettimeofday(&now, NULL);
-    secs = now.tv_usec;
+    millisecs = now.tv_usec;
 
-    int random_value_B = rand_r(&(secs));
+    int random_value_B = rand_r(&(millisecs)) % 10; //I chose to make random value be between 0 and 9
     B[row][column] = random_value_B;
 
     return NULL;
