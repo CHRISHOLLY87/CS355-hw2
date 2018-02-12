@@ -89,9 +89,11 @@ int main(int argc, char** argv) {
         //Parse command line into command and arguments
         cmd_words = parse_command_line(cmd_line);
         cmd = parse_command(cmd_words);
+        printf("%s\n", cmd->command);
 
         //Fork from parent as long as command exists
         if (cmd->command != NULL) {
+            printf("Is built in?: %d\n", is_built_in(*cmd));
             if (!is_built_in(*cmd)) {
                 pid = fork(); //TODO: check error checked
 
@@ -122,6 +124,7 @@ int main(int argc, char** argv) {
                     cmd = NULL;
                 }
             } else {
+                printf("Command is built in");
                 if (cmd_line != NULL) {
                     free(cmd_line);
                     cmd_line = NULL;
@@ -164,6 +167,7 @@ int main(int argc, char** argv) {
 
 /*
  * Method to execute built-in commands; the only supported command, currently, is exit. Please note that all memory is freed before exiting.
+ * Talked with classmates in TA session
  */
 int execute_built_in_command(command* command) {
     if (command_equals(built_in_commands[0], *command)) {
@@ -295,6 +299,7 @@ void initialize_built_in_commands() {
  * Method to compare the command portion of the struct and see if they are equal; mainly used for built-in commands to know what to do
  */
 int command_equals(command command1, command command2) {
+
     int compare_value = strcmp(command1.command, command2.command);
     if (compare_value == 0) {
         return TRUE;
