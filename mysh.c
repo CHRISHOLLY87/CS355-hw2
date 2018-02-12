@@ -85,7 +85,10 @@ int main(int argc, char** argv) {
 
         //Parse command line into command and arguments
         cmd = parse_command(cmd_line);
+        //Something went wrong with parsing...
         if (cmd == NULL) {
+            free(cmd_line);
+            
             error_message();
         }
 
@@ -155,9 +158,10 @@ void* parse_command(char* line) {
     //parse here
     //if(parsing happened)
     //parse if there is something to parse
-    command *return_command = (command *) malloc(sizeof(command));
+   /* command *return_command = (command *) malloc(sizeof(command));
     return_command->command = "exit";
     return_command->arguments = NULL;
+    */
     //else
 
     //Default return value
