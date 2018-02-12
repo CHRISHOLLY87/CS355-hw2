@@ -54,7 +54,7 @@ typedef struct command
 
 //Method declarations
 char *read_command_line(void); //took method from website https://brennan.io/2015/01/16/write-a-shell-in-c/
-command* parse_command(char* line);
+void* parse_command(char* line);
 int execute_command(command cmd);
 void execute_built_in_command(command* command);
 int command_equals(command command1, command command2);
@@ -85,9 +85,12 @@ int main(int argc, char** argv) {
 
         //Parse command line into command and arguments
         cmd = parse_command(cmd_line);
+        if (cmd == NULL) {
+            error_message();
+        }
 
         //Fork from parent as long as command exists
-        if (cmd->command!=NULL && !is_built_in(*cmd)) {
+        if (!is_built_in(*cmd)) {
             pid = fork(); //TODO: check error checked
 
             if (pid == 0) {
@@ -112,7 +115,6 @@ int main(int argc, char** argv) {
 
         if (cmd_line != NULL) {
             free(cmd_line);
-            cmd_line = NULL;
         }
     }
     return EXIT_SUCCESS;
@@ -148,16 +150,18 @@ int execute_command(command cmd) {
 /*
  * Method to parse input shell command
  */ //TODO: prevent memory leak here!
-command* parse_command(char* line) {
+void* parse_command(char* line) {
+    int parsing_happened = FALSE;
     //parse here
+    //if(parsing happened)
     //parse if there is something to parse
     command *return_command = (command *) malloc(sizeof(command));
     return_command->command = "exit";
     return_command->arguments = NULL;
+    //else
 
-    return return_command;
-
-    //TODO: add null terminator at end
+    //Default return value
+    return NULL;
 }
 
 /*
@@ -170,8 +174,7 @@ char* read_command_line(char* prompt) {
 /*
  * Took method, below, from website: https://brennan.io/2015/01/16/write-a-shell-in-c/
  */
-char* read_command_line(void)
-{
+char* read_command_line(void) {
     int bufsize = MAX_BUFFER;
     int position = 0;
     char *buffer = malloc(sizeof(char) * bufsize);
