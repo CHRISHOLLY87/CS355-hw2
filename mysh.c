@@ -68,6 +68,7 @@ command built_in_commands[NUM_COMMANDS];
 
 /*
  * Method main()
+ * Used https://www.cs.cornell.edu/courses/cs414/2004su/homework/shell/shell.html for reference and pseudocode layout
  */
 int main(int argc, char** argv) {
     pid_t pid;
@@ -106,16 +107,50 @@ int main(int argc, char** argv) {
                     free(cmd_line);
                     cmd_line = NULL;
                 }
+                if (cmd_words != NULL) {
+                    free(cmd_words);
+                    cmd_words = NULL;
+                }
+
+                if (cmd_words != NULL) {
+                    free(cmd_words);
+                    cmd_words = NULL;
+                }
+
+                if (cmd != NULL) {
+                    free(cmd);
+                    cmd = NULL;
+                }
             } else {
                 if (cmd_line != NULL) {
                     free(cmd_line);
                     cmd_line = NULL;
                 }
                 execute_built_in_command(cmd);
+
+                if (cmd_words != NULL) {
+                    free(cmd_words);
+                    cmd_words = NULL;
+                }
+
+                if (cmd != NULL) {
+                    free(cmd);
+                    cmd = NULL;
+                }
             }
 
             if (cmd_line != NULL) {
                 free(cmd_line);
+            }
+
+            if (cmd_words != NULL) {
+                free(cmd_words);
+                cmd_words = NULL;
+            }
+
+            if (cmd != NULL) {
+                free(cmd);
+                cmd = NULL;
             }
         }
     }
@@ -164,7 +199,7 @@ char** parse_command_line(char* line) {
     int bufsize = MAX_BUFFER;
     int position = 0;
     char** tokens = malloc(sizeof(char*) * bufsize);
-    const char s[2] = " ";
+    const char s[2] = " "; //want to separate using spaces or other deliminators
     char* current_token;
 
     if (!tokens) {
