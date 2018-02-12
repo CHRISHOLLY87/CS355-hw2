@@ -1,7 +1,7 @@
 all: mysh threads clean
 
 mysh: mysh.o
-	gcc -lreadline -lpthread -o mysh mysh.o -lcheck
+	gcc -lpthread -o mysh mysh.o -lcheck
 
 threads: threads.o
 	gcc -lpthread -o threads threads.o -lcheck

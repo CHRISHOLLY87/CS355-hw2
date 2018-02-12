@@ -25,16 +25,8 @@
 //Imports
 #include <stdlib.h>
 #include <printf.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include <zconf.h>
 #include <memory.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <readline/readline.h>
-#include <readline/history.h>
 
 //Macros
 #define TRUE 1
@@ -61,6 +53,7 @@ int execute_built_in_command(command* command);
 int command_equals(command command1, command command2);
 int is_built_in(command cmd);
 void initialize_built_in_commands();
+void free_memory(char* cmd_line, char** cmd_words, command* cmd);
 void error_message();
 
 //Global variables and arrays
@@ -68,7 +61,7 @@ command built_in_commands[NUM_COMMANDS];
 
 /*
  * Method main()
- * Used https://www.cs.cornell.edu/courses/cs414/2004su/homework/shell/shell.html for reference and pseudocode layout
+ * Referenced pseudocode layout on https://www.cs.cornell.edu/courses/cs414/2004su/homework/shell/shell.html
  */
 int main(int argc, char** argv) {
     pid_t pid;
@@ -76,7 +69,6 @@ int main(int argc, char** argv) {
     int status;
     command *cmd; //TODO: fix this...
     char **cmd_words;
-    char string[MAX_BUFFER];
 
     //Initialize and setup commands for the system
     initialize_built_in_commands();
@@ -105,65 +97,44 @@ int main(int argc, char** argv) {
                     //something went wrong with forking
                     error_message();
                 }
-                if (cmd_line != NULL) {
-                    free(cmd_line);
-                    cmd_line = NULL;
-                }
-                if (cmd_words != NULL) {
-                    free(cmd_words);
-                    cmd_words = NULL;
-                }
 
-                if (cmd_words != NULL) {
-                    free(cmd_words);
-                    cmd_words = NULL;
-                }
-
-                if (cmd != NULL) {
-                    free(cmd);
-                    cmd = NULL;
-                }
+                free_memory(cmd_line, cmd_words, cmd);
             } else {
                 printf("Command is built in...\n");
                 int return_val = execute_built_in_command(cmd);
 
-                if (cmd_line != NULL) {
-                    free(cmd_line);
-                    cmd_line = NULL;
-                }
+                free_memory(cmd_line, cmd_words, cmd);
 
-                if (cmd_words != NULL) {
-                    free(cmd_words);
-                    cmd_words = NULL;
-                }
-
-                if (cmd != NULL) {
-                    free(cmd);
-                    cmd = NULL;
-                }
-
-                //want to exit
-                if(return_val == TRUE) {
+                //want to exit ONLY after freeing all memory
+                if (return_val == TRUE) {
                     break;
                 }
             }
 
-            if (cmd_line != NULL) {
-                free(cmd_line);
-            }
-
-            if (cmd_words != NULL) {
-                free(cmd_words);
-                cmd_words = NULL;
-            }
-
-            if (cmd != NULL) {
-                free(cmd);
-                cmd = NULL;
-            }
+            free_memory(cmd_line, cmd_words, cmd);
         }
     }
     return EXIT_SUCCESS;
+}
+
+/*
+ * Method to free all memory used in program
+ */
+void free_memory(char* cmd_line, char** cmd_words, command* cmd) {
+    if (cmd_line != NULL) {
+        free(cmd_line);
+        cmd_line = NULL;
+    }
+
+    if (cmd_words != NULL) {
+        free(cmd_words);
+        cmd_words = NULL;
+    }
+
+    if (cmd != NULL) {
+        free(cmd);
+        cmd = NULL;
+    }
 }
 
 /*
