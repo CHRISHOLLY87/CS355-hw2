@@ -57,7 +57,7 @@ char *read_command_line(void); //took method from website https://brennan.io/201
 char** parse_command_line(char* line);
 command* parse_command(char** words);
 int execute_command(command cmd);
-void execute_built_in_command(command* command);
+int execute_built_in_command(command* command);
 int command_equals(command command1, command command2);
 int is_built_in(command cmd);
 void initialize_built_in_commands();
@@ -126,7 +126,7 @@ int main(int argc, char** argv) {
                     free(cmd_line);
                     cmd_line = NULL;
                 }
-                execute_built_in_command(cmd);
+                int return_val = execute_built_in_command(cmd);
 
                 if (cmd_words != NULL) {
                     free(cmd_words);
@@ -136,6 +136,11 @@ int main(int argc, char** argv) {
                 if (cmd != NULL) {
                     free(cmd);
                     cmd = NULL;
+                }
+
+                //want to exit
+                if(return_val == TRUE) {
+                    break;
                 }
             }
 
@@ -160,12 +165,11 @@ int main(int argc, char** argv) {
 /*
  * Method to execute built-in commands; the only supported command, currently, is exit. Please note that all memory is freed before exiting.
  */
-void execute_built_in_command(command* command) {
+int execute_built_in_command(command* command) {
     if (command_equals(built_in_commands[0], *command)) {
-        //TODO: free memory here
-        free(command);
-        exit(EXIT_SUCCESS);
+        return TRUE; //want to exit and break the while loop
     }
+    return FALSE;
 }
 
 /*
