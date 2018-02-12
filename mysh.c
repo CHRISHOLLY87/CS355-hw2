@@ -123,7 +123,7 @@ void execute_built_in_command(command* command) {
     if (command_equals(built_in_commands[0], *command)) {
         //TODO: free memory here
         //
-        // free(command);
+        free(command);
         exit(EXIT_SUCCESS);
     }
 }
