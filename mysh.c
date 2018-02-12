@@ -191,21 +191,21 @@ int main(int argc, char** argv) {
                     break;
                 }
             }
+        }
 
-            if (cmd_line != NULL) {
-                free(cmd_line);
-                cmd_line = NULL;
-            }
+        if (cmd_line != NULL) {
+            free(cmd_line);
+            cmd_line = NULL;
+        }
 
-            if (cmd_words != NULL) {
-                free(cmd_words);
-                cmd_words = NULL;
-            }
+        if (cmd_words != NULL) {
+            free(cmd_words);
+            cmd_words = NULL;
+        }
 
-            if (cmd != NULL) {
-                free(cmd);
-                cmd = NULL;
-            }
+        if (cmd != NULL) {
+            free(cmd);
+            cmd = NULL;
         }
     }
     return EXIT_SUCCESS;
