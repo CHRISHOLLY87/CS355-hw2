@@ -150,6 +150,33 @@ Lab01Part1.c.s:
 	$(MAKE) -f CMakeFiles/hw2.dir/build.make CMakeFiles/hw2.dir/Lab01Part1.c.s
 .PHONY : Lab01Part1.c.s
 
+TestingExecvp.o: TestingExecvp.c.o
+
+.PHONY : TestingExecvp.o
+
+# target to build an object file
+TestingExecvp.c.o:
+	$(MAKE) -f CMakeFiles/hw2.dir/build.make CMakeFiles/hw2.dir/TestingExecvp.c.o
+.PHONY : TestingExecvp.c.o
+
+TestingExecvp.i: TestingExecvp.c.i
+
+.PHONY : TestingExecvp.i
+
+# target to preprocess a source file
+TestingExecvp.c.i:
+	$(MAKE) -f CMakeFiles/hw2.dir/build.make CMakeFiles/hw2.dir/TestingExecvp.c.i
+.PHONY : TestingExecvp.c.i
+
+TestingExecvp.s: TestingExecvp.c.s
+
+.PHONY : TestingExecvp.s
+
+# target to generate assembly for a file
+TestingExecvp.c.s:
+	$(MAKE) -f CMakeFiles/hw2.dir/build.make CMakeFiles/hw2.dir/TestingExecvp.c.s
+.PHONY : TestingExecvp.c.s
+
 mysh.o: mysh.c.o
 
 .PHONY : mysh.o
@@ -216,6 +243,9 @@ help:
 	@echo "... Lab01Part1.o"
 	@echo "... Lab01Part1.i"
 	@echo "... Lab01Part1.s"
+	@echo "... TestingExecvp.o"
+	@echo "... TestingExecvp.i"
+	@echo "... TestingExecvp.s"
 	@echo "... mysh.o"
 	@echo "... mysh.i"
 	@echo "... mysh.s"

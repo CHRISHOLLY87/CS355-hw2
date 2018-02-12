@@ -2,6 +2,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/hw2.dir/threads.c.o"
   "CMakeFiles/hw2.dir/mysh.c.o"
   "CMakeFiles/hw2.dir/Lab01Part1.c.o"
+  "CMakeFiles/hw2.dir/TestingExecvp.c.o"
   "hw2.pdb"
   "hw2"
 )

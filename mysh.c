@@ -8,7 +8,9 @@
 * iii. Parse the command line into command and arguments
 * iv. Fork a child which executes the command with its arguments, wait for the child to terminate
 * Relevant system calls are fork(), wait(), exec() families and exit().
-* //TODO: figure out how to do this... Note that your shell should be able to perform standard path search according to the search path defined by the PATH environment variable. Hint: remember execvp. //TODO: figure out how to path searching in shell..
+* //TODO: figure out how to do this...
+ * Note that your shell should be able to perform standard path search according to the search path defined by the PATH
+ * environment variable. Hint: remember execvp. //TODO: figure out how to path searching in shell..
 * (b) Built-in commands
 * • exit: Exits mysh and returns to whatever shell you started mysh from. //TODO: clarify what this means?
 * (c) When parsing the command line, mysh should ignore all white spaces. You should find the Clib functions isspace() and strtok() useful.
@@ -38,7 +40,7 @@
 #define TRUE 1
 #define FALSE 0
 #define NUM_COMMANDS 1
-#define MAX_BUFFER 1024
+#define MAX_BUFFER 4092
 #ifndef _REENTRANT
 #define _REENTRANT
 #endif
@@ -47,115 +49,126 @@
 typedef struct command
 {
     char* command;
-    int arguments[];
+    char* arguments;
 } command;
 
 //Method declarations
-void print_prompt();
 char *read_command_line(char *prompt);
-command parse_command(char* line);
+command* parse_command(char* line);
 int execute_command(command cmd);
-int is_valid(command cmd);
-void initialize_commands(command* commands);
+void execute_built_in_command(command* command);
+int command_equals(command command1, command command2);
+int is_built_in(command cmd);
+void initialize_built_in_commands();
 void error_message();
 
 //Global variables and arrays
-command commands[NUM_COMMANDS];
+command built_in_commands[NUM_COMMANDS];
 
 /*
  * Method main()
  */
 int main(int argc, char** argv) {
-    pid_t child_pid;
+    pid_t pid;
     char *cmd_line;
     int status;
-    int need_to_print_prompt = TRUE;
-    command cmd; //TODO: fix this...
+    command* cmd; //TODO: fix this...
+    char string[MAX_BUFFER];
 
     //Initialize and setup commands for the system
-    initialize_commands(commands);
+    initialize_built_in_commands();
 
     while (TRUE) {
         //Print prompt and read the command line
-        cmd_line = read_command_line(cmd_line);
-        printf("%s\n", cmd_line);
+        printf("Shell> ");
+        cmd_line = read_command_line(string);
+        //printf("cmdline %s\n", cmd_line);
 
         //Parse command line into command and arguments
         cmd = parse_command(cmd_line);
-        printf("%s\n", cmd.command);
 
         //Fork from parent as long as command exists
-        if (is_valid(cmd)) {
-            child_pid = fork();
+        if (!is_built_in(*cmd)) {
+            pid = fork(); //TODO: check error checked
 
-            if (child_pid == 0) {
-                execute_command(cmd);
-            } else if (child_pid > 0) {
-                waitpid(child_pid, &status, 0); //wait on the forked child...
+            if (pid == 0) {
+                execute_command(*cmd);
+            } else if (pid > 0) {
+                waitpid(pid, &status, 0); //wait on the forked child...
             } else {
                 //something went wrong with forking
                 error_message();
             }
+            free(cmd_line);
         } else {
-            if (strlen(cmd_line) > 0) {
-                printf("-bash: %s: command not found\n", cmd_line);
-            }
+            free(cmd_line);
+            execute_built_in_command(cmd);
         }
+        free(cmd_line);
     }
     return EXIT_SUCCESS;
+}
+
+void execute_built_in_command(command* command) {
+    if (command_equals(built_in_commands[0], *command)) {
+        //TODO: free memory here
+        free(command);
+        exit(EXIT_SUCCESS);
+    }
 }
 
 /*
  * Method to check if a command is valid
  */
-int is_valid(command cmd) {
-    /*
+int is_built_in(command cmd) {
     for(int i=0; i<NUM_COMMANDS; i++) {
-        if(strcmp(commands[i].command, cmd.command) == 0) {
+        if(command_equals(cmd, built_in_commands[i])) {
             return TRUE;
         }
     }
-     */
-    return TRUE;
+    return FALSE;
 }
 
 int execute_command(command cmd) {
-//    printf("command: %s, %d\n", cmd.command, strcmp(cmd.command, "exit\0")==0);
-//    if(strcmp(cmd.command, "exit")==0) {
-//        exit(EXIT_SUCCESS);
-//    }
-    if(TRUE) {
-        exit(EXIT_SUCCESS);
+    if (execvp(cmd.command, &(cmd.arguments)) == -1) {
+        printf("-bash: %s: command not found\n", cmd.command);
     }
-
-    //Return NULL on error
-    else {
-        return 0; //Return Null
-    }
-}
-
-command parse_command(char* line) {
-    printf("%d \n", strcmp(line, "exit")==0);
-    if(strcmp(line, "exit")==0) {
-        return commands[0];
-    }
-
-    //TODO: Return something like NULL if command is not recognized
-    //return NULL;
-    return commands[0]; //TODO: fix this!
-}
-
-char* read_command_line(char* prompt) {
-    return readline("Shells by the Seashore$ "); //TODO: free when done!
+    return 0;
 }
 
 /*
- * Method to initialize commands
- */
-void initialize_commands(command* commands) {
-    //Existing system. commands
-    commands[0].command = "exit";
-    commands[0].arguments[0] = 0;
+ * Method to parse input shell command
+ */ //TODO: prevent memory leak here!
+command* parse_command(char* line) {
+    //parse here
+    command* return_command = (command* ) malloc(sizeof(command));
+    return_command->command = "exit";
+    return_command->arguments = NULL;
+    return return_command;
+    //TODO: add null terminator at end
+}
+
+char* read_command_line(char* prompt) {
+    //return readline("Shells by the Seashore$ "); //TODO: free when done! //use fgets() not readline(), since there are a lot of leaks here
+    fgets(prompt, MAX_BUFFER, stdin);
+}
+
+
+ /*
+  * Method to initialize commands
+  */
+void initialize_built_in_commands() {
+     built_in_commands[0].command = "exit";
+     built_in_commands[0].arguments = NULL;
+ }
+
+int command_equals(command command1, command command2) {
+    int compare_value = strcmp(command1.command, command2.command);
+    if (compare_value == 0) {
+        return TRUE;
+    } else {
+        return FALSE;
+    }
 }
 
 /*
@@ -165,6 +178,3 @@ void error_message() {
     printf("I am sorry, but there has been an error. Exiting now.\n");
     exit(EXIT_FAILURE);
 }
-
-
-
