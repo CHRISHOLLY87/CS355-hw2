@@ -40,7 +40,7 @@
 #define TRUE 1
 #define FALSE 0
 #define NUM_COMMANDS 1
-#define MAX_BUFFER 4092
+#define MAX_BUFFER 4096
 #ifndef _REENTRANT
 #define _REENTRANT
 #endif
@@ -82,7 +82,6 @@ int main(int argc, char** argv) {
         //Print prompt and read the command line
         printf("Shell>> ");
         cmd_line = read_command_line(string);
-        //printf("cmdline %s\n", cmd_line);
 
         //Parse command line into command and arguments
         cmd = parse_command(cmd_line);
@@ -122,7 +121,6 @@ int main(int argc, char** argv) {
 void execute_built_in_command(command* command) {
     if (command_equals(built_in_commands[0], *command)) {
         //TODO: free memory here
-        //
         free(command);
         exit(EXIT_SUCCESS);
     }
@@ -153,9 +151,12 @@ int execute_command(command cmd) {
 command* parse_command(char* line) {
     //parse here
     command* return_command = (command* ) malloc(sizeof(command));
-    return_command->command = "exit";
+    return_command->command = "nope";
     return_command->arguments = NULL;
+
+
     return return_command;
+
     //TODO: add null terminator at end
 }
 
