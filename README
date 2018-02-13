@@ -4,7 +4,12 @@ How to compile: There is a Makefile, so just type make to make and clean.
 
 How to run it: Make with the makefile and then run the executable like normal. ./mysh for my shell and ./threads for threads.
 
-Known Bugs and Limitations: Due to the time delay for threads, it appears to hang, but it is not hanging and instead calculating. Additionally, I am using strtok and not strtok_r in mysh.
+Known Bugs and Limitations:
+Due to the time delay for threads, it appears to hang, but it is not hanging and instead calculating. Too, I mod the random values to 0 to 9 to prevent overflow. Finally, I get a
+threads.c:166:22: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast] error in my threads program from casting my void* to an int. I know, however, that it is
+an int, so I do not think this is an issue. However, I wanted to document it.
+
+Additionally, I am using strtok and not strtok_r in mysh.
 
 File directory: N/A
 
