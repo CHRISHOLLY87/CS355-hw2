@@ -7,10 +7,10 @@ threads: threads.o
 	gcc -lpthread -o threads threads.o -lcheck
 
 mysh.o: mysh.c
-	gcc -c mysh.c
+	gcc -c -Wall mysh.c
 
 threads.o: threads.c
-	gcc -c threads.c
+	gcc -c -Wall threads.c
 
 clean:
 	rm -rf *.o *.gch *.dSYM mysh\ * threads\ *

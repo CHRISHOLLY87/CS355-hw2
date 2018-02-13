@@ -44,6 +44,7 @@ int main() {
     pthread_t row_threads[N];
     put_parameters parameters[N][N];
     put_parameters multiplication_parameters[N][N];
+    int rows[N]; 
 
     //mutex
     if(pthread_mutex_init(&lock, NULL) != 0) {
@@ -94,10 +95,10 @@ int main() {
 
     //threads for getting the max sum of the rows in C
     for (int i = 0; i < N; i++) {
-        void* row = (void*) (size_t) i;
+      rows[i] = i; 
 
         //error handling
-        if(pthread_create(&row_threads[i], NULL, row_computation, row) !=0) {
+        if(pthread_create(&row_threads[i], NULL, row_computation, &rows[i]) !=0) {
             error_message();
         }
         if(pthread_join(row_threads[i], NULL)!=0){
@@ -163,7 +164,7 @@ void* matrix_multiplication(void* parameters) {
  */
  void* row_computation(void* row) {
     long sum = 0; //single row value/variable
-    int row_to_add = (int) row; //cast the passed in void parameter
+    int row_to_add = *((int*) row); //cast the passed in void parameter
     struct timeval now;
     unsigned int millisecs;
 
