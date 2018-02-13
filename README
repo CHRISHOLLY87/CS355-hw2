@@ -2,9 +2,9 @@ Your name: Sarah Depew
 
 How to compile: There is a Makefile, so just type make to make and clean.
 
-How to run it:
+How to run it: Make with the makefile and then run the executable like normal. ./mysh for my shell and ./threads for threads.
 
-Known Bugs and Limitations:
+Known Bugs and Limitations: Due to the time delay for threads, it appears to hang, but it is not hanging and instead calculating. Additionally, I am using strtok and not strtok_r in mysh.
 
 File directory: N/A
 

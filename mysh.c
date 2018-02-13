@@ -312,7 +312,7 @@ int parse_command_line(char*** parsed_words, char* line) {
         return FALSE;
     }
 
-    current_token = strtok(line, s); //TODO: figure out how to use strtok_r
+    current_token = strtok(line, s); //TODO: figure out how to use strtok_rgit
     while (current_token != NULL) {
         tokens[position] = current_token;
         position++;

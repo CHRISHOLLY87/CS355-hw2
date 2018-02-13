@@ -66,6 +66,11 @@ int main() {
         }
     }
 
+    printf("Matrix A:\n");
+    print_array(A);
+    printf("Matrix B:\n");
+    print_array(B);
+
     //threads for multiplying A and B together to get C
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
@@ -83,6 +88,10 @@ int main() {
         }
     }
 
+    printf("Matrix C:\n");
+    print_array(C);
+    printf("Calculating max row sum... (this may take a few seconds).\n");
+
     //threads for getting the max sum of the rows in C
     for (int i = 0; i < N; i++) {
         void* row = (void*) (size_t) i;
@@ -97,12 +106,6 @@ int main() {
     }
 
     //Print messages
-    printf("Matrix A:\n");
-    print_array(A);
-    printf("Matrix B:\n");
-    print_array(B);
-    printf("Matrix C:\n");
-    print_array(C);
     printf("Max row sum: %ld.\n", MAX_ROW_SUM);
 
     //Done with mutex now, so destroy it
