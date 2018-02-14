@@ -12,6 +12,7 @@
 #define FALSE 0
 #define NUM_COMMANDS 1
 #define MAX_BUFFER 4096
+#define ERROR -1
 
 //Variable if we have a signal upon which we want to exit or not
 int EXIT = FALSE;

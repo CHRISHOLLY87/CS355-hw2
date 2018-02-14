@@ -9,6 +9,9 @@
 #define _REENTRANT
 
 #define N 3
+#define TRUE 1
+#define FALSE 0
+#define MOD 10
 
 //struct (to pass more than one parameter into thread method)
 typedef struct put_parameters

@@ -6,8 +6,6 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <errno.h>
-
-
 #include "mysh.h"
 
 //Global variables and arrays
@@ -28,7 +26,7 @@ int main(int argc, char** argv) {
     char **cmd_words = NULL;
 
     //register signals and check if successful
-    if(signal(SIGINT, sig_handler) == SIG_ERR) {
+    if (signal(SIGINT, sig_handler) == SIG_ERR) {
         error_message();
         exit(EXIT_FAILURE);
     }
@@ -69,7 +67,7 @@ int main(int argc, char** argv) {
                 pid = fork();
 
                 if (pid == 0) {
-                    if(!execute_command(*cmd)) {
+                    if (!execute_command(*cmd)) {
                         free_memory(&cmd_line, &cmd_words, &cmd);
                         exit(EXIT_FAILURE);
                     }
@@ -99,10 +97,10 @@ int main(int argc, char** argv) {
 }
 
 /*
- * Signal Handler that handles ctrl-C and ctrl-Z
+ * Signal Handler that handles ctrl-C
  */
 void sig_handler(int value) {
-    //Note we want to exit upon these signals
+    //Note we want to exit upon this signal
     EXIT = TRUE;
 }
 
@@ -153,7 +151,7 @@ int is_built_in(command cmd) {
  * Method to execute a command using standard path search; returns if success or not
  */
 int execute_command(command cmd) {
-    if (execvp(cmd.command, cmd.arguments) == -1) {
+    if (execvp(cmd.command, cmd.arguments) == ERROR) {
         printf("-bash: %s: command not found\n", cmd.command);
         return FALSE;
     }
@@ -176,7 +174,7 @@ int read_command_line(char** return_val) {
         return FALSE;
     }
 
-    while (1) {
+    while (TRUE) {
         // Read a character from stdin
         c = getchar();
 
@@ -267,7 +265,7 @@ void initialize_built_in_commands() {
  */
 int command_equals(command command1, command command2) {
     int compare_value = strcmp(command1.command, command2.command);
-    if (compare_value == 0) {
+    if (compare_value == FALSE) {
         return TRUE;
     } else {
         return FALSE;

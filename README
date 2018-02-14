@@ -7,7 +7,8 @@ How to run it: Make with the makefile and then run the executable like normal. .
 Known Bugs and Limitations:
 Due to the time delay for threads, it appears to hang, but it is not hanging and instead calculating. Too, I mod the random values to 0 to 9 to prevent overflow.
 
-Additionally, I am using strtok and not strtok_r in mysh. Too, I get a memory leak on SIGKILL.
+Additionally, I am using strtok and not strtok_r in mysh. Too, I do not know if I get a memory leak on SIGKILL. I valgrid was not saying I do, but since I cannot register SIGKILL
+I was not able to free any memory when CTRL-Z was called.
 
 File directory: N/A
 

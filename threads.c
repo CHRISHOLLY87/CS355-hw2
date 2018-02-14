@@ -27,7 +27,7 @@ int main() {
     int rows[N]; 
 
     //mutex
-    if(pthread_mutex_init(&lock, NULL) != 0) {
+    if(pthread_mutex_init(&lock, NULL) != FALSE) {
         error_message();
     }
 
@@ -41,7 +41,7 @@ int main() {
             if (pthread_create(&threads[i][j], NULL, put_value, &parameters[i][j]) != 0) {
                 error_message();
             }
-            if (pthread_join(threads[i][j], NULL) != 0) {
+            if (pthread_join(threads[i][j], NULL) != FALSE) {
                 error_message();
             }
         }
@@ -60,10 +60,10 @@ int main() {
 
             //error handling
             if (pthread_create(&multiplication_threads[i][j], NULL, matrix_multiplication,
-                               &multiplication_parameters[i][j]) != 0) {
+                               &multiplication_parameters[i][j]) != FALSE) {
                 error_message();
             }
-            if (pthread_join(threads[i][j], NULL) != 0) {
+            if (pthread_join(threads[i][j], NULL) != FALSE) {
                 error_message();
             }
         }
@@ -78,10 +78,10 @@ int main() {
       rows[i] = i; 
 
         //error handling
-        if(pthread_create(&row_threads[i], NULL, row_computation, &rows[i]) !=0) {
+        if(pthread_create(&row_threads[i], NULL, row_computation, &rows[i]) !=FALSE) {
             error_message();
         }
-        if(pthread_join(row_threads[i], NULL)!=0){
+        if(pthread_join(row_threads[i], NULL)!=FALSE){
             error_message();
         }
     }
@@ -90,7 +90,7 @@ int main() {
     printf("Max row sum: %ld.\n", MAX_ROW_SUM);
 
     //Done with mutex now, so destroy it
-    if(pthread_mutex_destroy(&lock)!=0) {
+    if(pthread_mutex_destroy(&lock)!=FALSE) {
         error_message();
     }
 
@@ -112,13 +112,13 @@ void* put_value(void* parameters) {
     gettimeofday(&now, NULL);
     millisecs = now.tv_usec;
 
-    int random_value_A = rand_r(&(millisecs)) % 10 ; //I chose to make random value be between 0 and 9, so that overflow did not happen
+    int random_value_A = rand_r(&(millisecs)) % MOD; //I chose to make random value be between 0 and 9, so that overflow did not happen
     A[row][column] = random_value_A;
 
     gettimeofday(&now, NULL);
     millisecs = now.tv_usec;
 
-    int random_value_B = rand_r(&(millisecs)) % 10; //I chose to make random value be between 0 and 9, so that overflow did not happen
+    int random_value_B = rand_r(&(millisecs)) % MOD; //I chose to make random value be between 0 and 9, so that overflow did not happen
     B[row][column] = random_value_B;
 
     return NULL;
@@ -160,7 +160,7 @@ void* matrix_multiplication(void* parameters) {
 
     //replace max row sum's value if needed...
     //critical region, since MAX_ROW_SUM is on the heap and is global to the function as a whole
-    if (pthread_mutex_lock(&lock) != 0) {
+    if (pthread_mutex_lock(&lock) != FALSE) {
         error_message();
     }
 
@@ -169,7 +169,7 @@ void* matrix_multiplication(void* parameters) {
         MAX_ROW_SUM = sum;
     }
 
-    if (pthread_mutex_unlock(&lock) != 0) {
+    if (pthread_mutex_unlock(&lock) != FALSE) {
         error_message();
     }
 
