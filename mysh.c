@@ -4,6 +4,10 @@
 #include <zconf.h>
 #include <memory.h>
 #include <sys/wait.h>
+#include <signal.h>
+#include <errno.h>
+
+
 #include "mysh.h"
 
 //Global variables and arrays
@@ -23,10 +27,16 @@ int main(int argc, char** argv) {
     command *cmd = NULL;
     char **cmd_words = NULL;
 
+    //register signals and check if successful
+    if(signal(SIGINT, sig_handler) == SIG_ERR) {
+        error_message();
+        exit(EXIT_FAILURE);
+    }
+
     //Initialize and setup system commands
     initialize_built_in_commands();
 
-    while (TRUE) {
+    while (!EXIT) {
         //Print prompt and read the command line
         printf("Shells by the Seashore$ ");
         read_command_status = read_command_line(&cmd_line);
@@ -83,7 +93,17 @@ int main(int argc, char** argv) {
         }
         free_memory(&cmd_line, &cmd_words, &cmd);
     }
+
+    free_memory(&cmd_line, &cmd_words, &cmd);
     return EXIT_SUCCESS;
+}
+
+/*
+ * Signal Handler that handles ctrl-C and ctrl-Z
+ */
+void sig_handler(int value) {
+    //Note we want to exit upon these signals
+    EXIT = TRUE;
 }
 
 /*

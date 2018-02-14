@@ -5,15 +5,16 @@
 #ifndef HW2_MYSH_H
 #define HW2_MYSH_H
 
+#ifndef _REENTRANT
+#define _REENTRANT
 //Macros
 #define TRUE 1
 #define FALSE 0
 #define NUM_COMMANDS 1
 #define MAX_BUFFER 4096
-#define EXIT 0
 
-#ifndef _REENTRANT
-#define _REENTRANT
+//Variable if we have a signal upon which we want to exit or not
+int EXIT = FALSE;
 
 //Struct for the command string and the argument values passed
 typedef struct command
@@ -21,6 +22,11 @@ typedef struct command
     char* command;
     char** arguments;
 } command;
+
+/*
+ * Signal Handler that handles ctrl-C and ctrl-Z
+ */
+void sig_handler(int value);
 
 /*
  * Method for reading the command line input from the user prompt line. Return TRUE on success and FALSE on failure.
