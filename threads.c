@@ -3,13 +3,7 @@
 #include <sys/time.h>
 #include <stdlib.h>
 #include <zconf.h>
-
-//constants
-#ifndef _REENTRANT
-#define _REENTRANT
-#endif
-
-#define N 3
+#include "threads.h"
 
 //matrices
 long A[N][N];
@@ -19,20 +13,6 @@ long C[N][N];
 //variables
 long MAX_ROW_SUM = 0;
 pthread_mutex_t lock;
-
-//methods
-void* put_value(void * parameters);
-void* matrix_multiplication(void* parameters);
-void* row_computation(void* row);
-void print_array(long array[N][N]);
-void error_message();
-
-//structs (to pass more than one parameter into thread method)
-typedef struct put_parameters
-{
-    int row;
-    int column;
-} put_parameters;
 
 /*
  * Method main for the program. Also where threads are created and joined.

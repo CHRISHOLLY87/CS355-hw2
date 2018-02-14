@@ -4,34 +4,7 @@
 #include <zconf.h>
 #include <memory.h>
 #include <sys/wait.h>
-
-//Macros
-#define TRUE 1
-#define FALSE 0
-#define NUM_COMMANDS 1
-#define MAX_BUFFER 4096
-#ifndef _REENTRANT
-#define _REENTRANT
-#endif
-
-//Structs
-typedef struct command
-{
-    char* command;
-    char** arguments;
-} command;
-
-//Method declarations
-int read_command_line(char**); //took method from website https://brennan.io/2015/01/16/write-a-shell-in-c/
-int parse_command_line(char*** parsed_words, char* line);
-void parse_command(command* parsed_command, char** words);
-int execute_command(command cmd);
-int execute_built_in_command(command* command);
-int command_equals(command command1, command command2);
-int is_built_in(command cmd);
-void initialize_built_in_commands();
-void free_memory(char** cmd_line, char*** cmd_words, command** cmd);
-void error_message();
+#include "mysh.h"
 
 //Global variables and arrays
 command built_in_commands[NUM_COMMANDS];
@@ -59,19 +32,20 @@ int main(int argc, char** argv) {
         read_command_status = read_command_line(&cmd_line);
         if (!read_command_status) {
             //Free memory and exit on failure
-            if (cmd_line != NULL) {
-                free(cmd_line);
-                cmd_line = NULL;
-            }
-            if (cmd_words != NULL) {
-                free(cmd_words);
-                cmd_words = NULL;
-            }
-
-            if (cmd != NULL) {
-                free(cmd);
-                cmd = NULL;
-            }
+//            if (cmd_line != NULL) {
+//                free(cmd_line);
+//                cmd_line = NULL;
+//            }
+//            if (cmd_words != NULL) {
+//                free(cmd_words);
+//                cmd_words = NULL;
+//            }
+//
+//            if (cmd != NULL) {
+//                free(cmd);
+//                cmd = NULL;
+//            }
+            free_memory(&cmd_line, &cmd_words, &cmd);
             exit(EXIT_FAILURE);
         }
 
@@ -79,38 +53,40 @@ int main(int argc, char** argv) {
         parse_command_status = parse_command_line(&cmd_words, cmd_line);
         if (!parse_command_status) {
             //Free memory and exit on failure
-            if (cmd_line != NULL) {
-                free(cmd_line);
-                cmd_line = NULL;
-            }
-            if (cmd_words != NULL) {
-                free(cmd_words);
-                cmd_words = NULL;
-            }
-
-            if (cmd != NULL) {
-                free(cmd);
-                cmd = NULL;
-            }
+//            if (cmd_line != NULL) {
+//                free(cmd_line);
+//                cmd_line = NULL;
+//            }
+//            if (cmd_words != NULL) {
+//                free(cmd_words);
+//                cmd_words = NULL;
+//            }
+//
+//            if (cmd != NULL) {
+//                free(cmd);
+//                cmd = NULL;
+//            }
+            free_memory(&cmd_line, &cmd_words, &cmd);
             exit(EXIT_FAILURE);
         }
         cmd = malloc(sizeof(command));
         if (cmd == NULL) {
             error_message();
             //Free memory and exit on failure
-            if (cmd_line != NULL) {
-                free(cmd_line);
-                cmd_line = NULL;
-            }
-            if (cmd_words != NULL) {
-                free(cmd_words);
-                cmd_words = NULL;
-            }
-
-            if (cmd != NULL) {
-                free(cmd);
-                cmd = NULL;
-            }
+//            if (cmd_line != NULL) {
+//                free(cmd_line);
+//                cmd_line = NULL;
+//            }
+//            if (cmd_words != NULL) {
+//                free(cmd_words);
+//                cmd_words = NULL;
+//            }
+//
+//            if (cmd != NULL) {
+//                free(cmd);
+//                cmd = NULL;
+//            }
+            free_memory(&cmd_line, &cmd_words, &cmd);
             exit(EXIT_FAILURE);
         }
 
@@ -123,26 +99,30 @@ int main(int argc, char** argv) {
 
                 if (pid == 0) {
                     if(!execute_command(*cmd)) {
-                        if (cmd_line != NULL) {
-                            free(cmd_line);
-                            cmd_line = NULL;
-                        }
+//                        if (cmd_line != NULL) {
+//                            free(cmd_line);
+//                            cmd_line = NULL;
+//                        }
+//
+//                        if (cmd_words != NULL) {
+//                            free(cmd_words);
+//                            cmd_words = NULL;
+//                        }
+//
+//                        if (cmd != NULL) {
+//                            free(cmd);
+//                            cmd = NULL;
+//                        }
 
-                        if (cmd_words != NULL) {
-                            free(cmd_words);
-                            cmd_words = NULL;
-                        }
-
-                        if (cmd != NULL) {
-                            free(cmd);
-                            cmd = NULL;
-                        }
+                        free_memory(&cmd_line, &cmd_words, &cmd);
                         exit(EXIT_FAILURE);
                     }
                 } else if (pid > 0) {
                     waitpid(pid, &status, 0); //wait on the forked child...
                 } else {    //something went wrong with forking
                     error_message();
+
+                    /*
                     if (cmd_line != NULL) {
                         free(cmd_line);
                         cmd_line = NULL;
@@ -157,9 +137,12 @@ int main(int argc, char** argv) {
                         free(cmd);
                         cmd = NULL;
                     }
+                     */
+                    free_memory(&cmd_line, &cmd_words, &cmd);
                     exit(EXIT_FAILURE);
                 }
 
+                /*
                 if (cmd_line != NULL) {
                     free(cmd_line);
                     cmd_line = NULL;
@@ -174,9 +157,13 @@ int main(int argc, char** argv) {
                     free(cmd);
                     cmd = NULL;
                 }
+                */
+
+                free_memory(&cmd_line, &cmd_words, &cmd);
             } else {
                 int return_val = execute_built_in_command(cmd);
 
+                /*
                 if (cmd_line != NULL) {
                     free(cmd_line);
                     cmd_line = NULL;
@@ -191,6 +178,9 @@ int main(int argc, char** argv) {
                     free(cmd);
                     cmd = NULL;
                 }
+                 */
+
+                free_memory(&cmd_line, &cmd_words, &cmd);
 
                 //want to exit ONLY after freeing all memory
                 if (return_val == TRUE) {
@@ -198,23 +188,40 @@ int main(int argc, char** argv) {
                 }
             }
         }
-
-        if (cmd_line != NULL) {
-            free(cmd_line);
-            cmd_line = NULL;
-        }
-
-        if (cmd_words != NULL) {
-            free(cmd_words);
-            cmd_words = NULL;
-        }
-
-        if (cmd != NULL) {
-            free(cmd);
-            cmd = NULL;
-        }
+//
+//        if (cmd_line != NULL) {
+//            free(cmd_line);
+//            cmd_line = NULL;
+//        }
+//
+//        if (cmd_words != NULL) {
+//            free(cmd_words);
+//            cmd_words = NULL;
+//        }
+//
+//        if (cmd != NULL) {
+//            free(cmd);
+//            cmd = NULL;
+//        }
+        free_memory(&cmd_line, &cmd_words, &cmd);
     }
     return EXIT_SUCCESS;
+}
+
+void free_memory(char** cmd_line, char*** cmd_words, command** cmd) {
+    if (*cmd_line != NULL) {
+        free(*cmd_line);
+        *cmd_line = NULL;
+    }
+    if (*cmd_words != NULL) {
+        free(*cmd_words);
+        *cmd_words = NULL;
+    }
+
+    if (*cmd != NULL) {
+        free(*cmd);
+        *cmd = NULL;
+    }
 }
 
 /*
@@ -312,7 +319,7 @@ int parse_command_line(char*** parsed_words, char* line) {
         return FALSE;
     }
 
-    current_token = strtok(line, s); //TODO: figure out how to use strtok_rgit
+    current_token = strtok(line, s); //TODO: figure out how to use strtok_r
     while (current_token != NULL) {
         tokens[position] = current_token;
         position++;
