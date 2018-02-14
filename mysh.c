@@ -32,19 +32,6 @@ int main(int argc, char** argv) {
         read_command_status = read_command_line(&cmd_line);
         if (!read_command_status) {
             //Free memory and exit on failure
-//            if (cmd_line != NULL) {
-//                free(cmd_line);
-//                cmd_line = NULL;
-//            }
-//            if (cmd_words != NULL) {
-//                free(cmd_words);
-//                cmd_words = NULL;
-//            }
-//
-//            if (cmd != NULL) {
-//                free(cmd);
-//                cmd = NULL;
-//            }
             free_memory(&cmd_line, &cmd_words, &cmd);
             exit(EXIT_FAILURE);
         }
@@ -53,19 +40,6 @@ int main(int argc, char** argv) {
         parse_command_status = parse_command_line(&cmd_words, cmd_line);
         if (!parse_command_status) {
             //Free memory and exit on failure
-//            if (cmd_line != NULL) {
-//                free(cmd_line);
-//                cmd_line = NULL;
-//            }
-//            if (cmd_words != NULL) {
-//                free(cmd_words);
-//                cmd_words = NULL;
-//            }
-//
-//            if (cmd != NULL) {
-//                free(cmd);
-//                cmd = NULL;
-//            }
             free_memory(&cmd_line, &cmd_words, &cmd);
             exit(EXIT_FAILURE);
         }
@@ -73,19 +47,6 @@ int main(int argc, char** argv) {
         if (cmd == NULL) {
             error_message();
             //Free memory and exit on failure
-//            if (cmd_line != NULL) {
-//                free(cmd_line);
-//                cmd_line = NULL;
-//            }
-//            if (cmd_words != NULL) {
-//                free(cmd_words);
-//                cmd_words = NULL;
-//            }
-//
-//            if (cmd != NULL) {
-//                free(cmd);
-//                cmd = NULL;
-//            }
             free_memory(&cmd_line, &cmd_words, &cmd);
             exit(EXIT_FAILURE);
         }
@@ -99,21 +60,6 @@ int main(int argc, char** argv) {
 
                 if (pid == 0) {
                     if(!execute_command(*cmd)) {
-//                        if (cmd_line != NULL) {
-//                            free(cmd_line);
-//                            cmd_line = NULL;
-//                        }
-//
-//                        if (cmd_words != NULL) {
-//                            free(cmd_words);
-//                            cmd_words = NULL;
-//                        }
-//
-//                        if (cmd != NULL) {
-//                            free(cmd);
-//                            cmd = NULL;
-//                        }
-
                         free_memory(&cmd_line, &cmd_words, &cmd);
                         exit(EXIT_FAILURE);
                     }
@@ -121,65 +67,12 @@ int main(int argc, char** argv) {
                     waitpid(pid, &status, 0); //wait on the forked child...
                 } else {    //something went wrong with forking
                     error_message();
-
-                    /*
-                    if (cmd_line != NULL) {
-                        free(cmd_line);
-                        cmd_line = NULL;
-                    }
-
-                    if (cmd_words != NULL) {
-                        free(cmd_words);
-                        cmd_words = NULL;
-                    }
-
-                    if (cmd != NULL) {
-                        free(cmd);
-                        cmd = NULL;
-                    }
-                     */
                     free_memory(&cmd_line, &cmd_words, &cmd);
                     exit(EXIT_FAILURE);
                 }
-
-                /*
-                if (cmd_line != NULL) {
-                    free(cmd_line);
-                    cmd_line = NULL;
-                }
-
-                if (cmd_words != NULL) {
-                    free(cmd_words);
-                    cmd_words = NULL;
-                }
-
-                if (cmd != NULL) {
-                    free(cmd);
-                    cmd = NULL;
-                }
-                */
-
                 free_memory(&cmd_line, &cmd_words, &cmd);
             } else {
                 int return_val = execute_built_in_command(cmd);
-
-                /*
-                if (cmd_line != NULL) {
-                    free(cmd_line);
-                    cmd_line = NULL;
-                }
-
-                if (cmd_words != NULL) {
-                    free(cmd_words);
-                    cmd_words = NULL;
-                }
-
-                if (cmd != NULL) {
-                    free(cmd);
-                    cmd = NULL;
-                }
-                 */
-
                 free_memory(&cmd_line, &cmd_words, &cmd);
 
                 //want to exit ONLY after freeing all memory
@@ -188,26 +81,14 @@ int main(int argc, char** argv) {
                 }
             }
         }
-//
-//        if (cmd_line != NULL) {
-//            free(cmd_line);
-//            cmd_line = NULL;
-//        }
-//
-//        if (cmd_words != NULL) {
-//            free(cmd_words);
-//            cmd_words = NULL;
-//        }
-//
-//        if (cmd != NULL) {
-//            free(cmd);
-//            cmd = NULL;
-//        }
         free_memory(&cmd_line, &cmd_words, &cmd);
     }
     return EXIT_SUCCESS;
 }
 
+/*
+ * Method to free memory used in the program
+ */
 void free_memory(char** cmd_line, char*** cmd_words, command** cmd) {
     if (*cmd_line != NULL) {
         free(*cmd_line);
