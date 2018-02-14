@@ -13,4 +13,6 @@ I was not able to free any memory when CTRL-Z was called.
 
 File directory: N/A
 
+Extra Credit: I did not implement this.
+
 Resources: I used stack overflow, use code from https://brennan.io/2015/01/16/write-a-shell-in-c/ and looked at https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm, went to TA sessions,and worked with Kellie, Dylan, and Ju-Han.
